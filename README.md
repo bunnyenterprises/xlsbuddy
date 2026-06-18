@@ -1,4 +1,4 @@
-# XLSBuddy
+﻿# XLSBuddy
 
 An AI-powered Excel assistant. Learn Excel functions and formulas through interactive tutorials, a searchable function library, and an AI chat that answers your spreadsheet questions.
 
@@ -35,15 +35,15 @@ Then open http://localhost:3000.
 
 ```
 xlsbuddy/
-├── backend/
-│   ├── server.py        # FastAPI app + main routes
-│   ├── admin.py         # Admin/settings/payments router
-│   ├── auth.py          # JWT + bcrypt
-│   └── seed_data.py     # Excel functions + tutorials seed data
-└── frontend/
-    └── src/
-        ├── pages/       # Route-level page components
-        ├── components/  # Shared UI components
-        ├── context/     # Auth + Theme context providers
-        └── lib/         # API client + utilities
+â”œâ”€â”€ backend/
+â”‚   â”œâ”€â”€ server.py        # FastAPI app + main routes
+â”‚   â”œâ”€â”€ admin.py         # Admin/settings/payments router
+â”‚   â”œâ”€â”€ auth.py          # JWT + bcrypt
+â”‚   â””â”€â”€ seed_data.py     # Excel functions + tutorials seed data
+â””â”€â”€ frontend/
+    â””â”€â”€ src/
+        â”œâ”€â”€ pages/       # Route-level page components
+        â”œâ”€â”€ components/  # Shared UI components
+        â”œâ”€â”€ context/     # Auth + Theme context providers
+        â””â”€â”€ lib/         # API client + utilities
 ```
