@@ -50,7 +50,7 @@ class CreateSessionRequest(BaseModel):
 class FormulaRequest(BaseModel):
     description: str
 
-GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
 
 SYSTEM_PROMPT = """You are XLSBUDDY AI, an expert Excel assistant. You help users with:
 - Excel formulas and functions (syntax, examples, troubleshooting)
@@ -312,10 +312,10 @@ async def chat_usage(user_id: str = Depends(get_current_user_id)):
 
 @api_router.post("/chat/message")
 async def send_message(req: ChatMessageRequest, user_id: str = Depends(get_current_user_id)):
-    import google.generativeai as genai
+    from groq import AsyncGroq
 
-    if not GOOGLE_API_KEY:
-        raise HTTPException(status_code=503, detail="AI service not configured. Add GOOGLE_API_KEY to environment variables.")
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=503, detail="AI service not configured. Add GROQ_API_KEY to environment variables.")
 
     user = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
     if not user:
@@ -345,20 +345,21 @@ async def send_message(req: ChatMessageRequest, user_id: str = Depends(get_curre
     user_msg = {"id": str(uuid.uuid4()), "session_id": session_id, "role": "user", "content": req.content, "created_at": now}
     await db.chat_messages.insert_one(user_msg.copy())
 
-    # Build conversation history for Gemini
     history = await db.chat_messages.find({"session_id": session_id}, {"_id": 0}).sort("created_at", 1).to_list(40)
-    contents = [
-        {"role": "model" if m["role"] == "assistant" else "user", "parts": [m["content"]]}
-        for m in history
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}] + [
+        {"role": m["role"], "content": m["content"]} for m in history
     ]
 
     try:
-        genai.configure(api_key=GOOGLE_API_KEY)
-        model = genai.GenerativeModel(model_name="gemini-2.0-flash", system_instruction=SYSTEM_PROMPT)
-        response = await model.generate_content_async(contents)
-        ai_text = response.text
+        groq_client = AsyncGroq(api_key=GROQ_API_KEY)
+        completion = await groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            max_tokens=1024,
+        )
+        ai_text = completion.choices[0].message.content
     except Exception as e:
-        logging.exception("Gemini API error")
+        logging.exception("Groq API error")
         raise HTTPException(status_code=500, detail=f"AI error: {str(e)}")
 
     ai_msg = {"id": str(uuid.uuid4()), "session_id": session_id, "role": "assistant", "content": ai_text, "created_at": datetime.now(timezone.utc).isoformat()}
@@ -371,10 +372,11 @@ async def send_message(req: ChatMessageRequest, user_id: str = Depends(get_curre
 # ============= FORMULA GENERATOR =============
 @api_router.post("/formula/generate")
 async def generate_formula(req: FormulaRequest, user_id: str = Depends(get_current_user_id)):
-    import google.generativeai as genai, json, re
+    from groq import AsyncGroq
+    import json, re
 
-    if not GOOGLE_API_KEY:
-        raise HTTPException(status_code=503, detail="AI service not configured. Add GOOGLE_API_KEY to environment variables.")
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=503, detail="AI service not configured. Add GROQ_API_KEY to environment variables.")
 
     if not req.description.strip():
         raise HTTPException(status_code=400, detail="Description is required")
@@ -389,13 +391,16 @@ Respond in this exact JSON format (no extra text):
 }}"""
 
     try:
-        genai.configure(api_key=GOOGLE_API_KEY)
-        model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash",
-            system_instruction="You are an expert Excel formula generator. Always respond with valid JSON only.",
+        groq_client = AsyncGroq(api_key=GROQ_API_KEY)
+        completion = await groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are an expert Excel formula generator. Always respond with valid JSON only."},
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=512,
         )
-        response = await model.generate_content_async(prompt)
-        raw = response.text
+        raw = completion.choices[0].message.content
         match = re.search(r'\{.*\}', raw, re.DOTALL)
         if not match:
             raise ValueError("No JSON in response")
