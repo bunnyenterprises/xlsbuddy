@@ -213,7 +213,8 @@ async def get_tutorial(tut_id: str):
         raise HTTPException(status_code=404, detail="Tutorial not found")
     return tut
 @api_router.post("/admin/tutorials")
-async def create_tutorial(payload: dict):
+async def create_tutorial(payload: dict, user_id: str = Depends(get_current_user_id)):
+    await require_admin(db, user_id)
     tutorial = {
         "id": str(uuid.uuid4()),
         "title": payload.get("title"),
@@ -221,45 +222,31 @@ async def create_tutorial(payload: dict):
         "category": payload.get("category", ""),
         "content": payload.get("content", ""),
     }
-
     await db.tutorials.insert_one(tutorial.copy())
-
     return tutorial
 
 @api_router.put("/admin/tutorials/{tutorial_id}")
-async def update_tutorial(tutorial_id: str, payload: dict):
+async def update_tutorial(tutorial_id: str, payload: dict, user_id: str = Depends(get_current_user_id)):
+    await require_admin(db, user_id)
     result = await db.tutorials.update_one(
         {"id": tutorial_id},
-        {
-            "$set": {
-                "title": payload.get("title"),
-                "summary": payload.get("summary", ""),
-                "category": payload.get("category", ""),
-                "content": payload.get("content", ""),
-            }
-        }
+        {"$set": {
+            "title": payload.get("title"),
+            "summary": payload.get("summary", ""),
+            "category": payload.get("category", ""),
+            "content": payload.get("content", ""),
+        }}
     )
-
     if result.matched_count == 0:
-        raise HTTPException(
-            status_code=404,
-            detail="Tutorial not found"
-        )
-
+        raise HTTPException(status_code=404, detail="Tutorial not found")
     return {"success": True}
 
 @api_router.delete("/admin/tutorials/{tutorial_id}")
-async def delete_tutorial(tutorial_id: str):
-    result = await db.tutorials.delete_one(
-        {"id": tutorial_id}
-    )
-
+async def delete_tutorial(tutorial_id: str, user_id: str = Depends(get_current_user_id)):
+    await require_admin(db, user_id)
+    result = await db.tutorials.delete_one({"id": tutorial_id})
     if result.deleted_count == 0:
-        raise HTTPException(
-            status_code=404,
-            detail="Tutorial not found"
-        )
-
+        raise HTTPException(status_code=404, detail="Tutorial not found")
     return {"success": True}
 
 
