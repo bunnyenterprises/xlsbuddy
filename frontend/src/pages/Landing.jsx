@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,7 @@ export default function Landing() {
         <div className="relative max-w-[1400px] mx-auto px-6 lg:px-10 pt-20 pb-28">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <div className="lg:col-span-8 slide-in">
-              <div className="overline klein mb-6">// EXCEL · DECODED</div>
+              <div className="overline klein mb-6">EXCEL · DECODED</div>
               <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold tracking-tight leading-tight mb-8">
                 Every Excel formula.<br/>
                 Every error.<br/>
@@ -75,10 +75,10 @@ export default function Landing() {
                 </Link>
               </div>
               <div className="mt-12 flex flex-wrap gap-x-10 gap-y-3 overline text-foreground/70">
-                <span>// 100+ FUNCTIONS</span>
-                <span>// LIVE EXCEL PREVIEW</span>
-                <span>// 0$ TO START</span>
-                {avg && <span>// ⭐ {avg} RATED</span>}
+                <span>100+ FUNCTIONS</span>
+                <span>LIVE EXCEL PREVIEW</span>
+                <span>0$ TO START</span>
+                {avg && <span>⭐ {avg} RATED</span>}
               </div>
             </div>
             <div className="lg:col-span-4 hidden lg:flex flex-col justify-end">
@@ -100,7 +100,7 @@ export default function Landing() {
       {/* FEATURES — Tetris grid */}
       <section className="border-b border-foreground/15 dark:border-white/10">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-20">
-          <div className="overline klein mb-3">// CAPABILITIES</div>
+          <div className="overline klein mb-3">CAPABILITIES</div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-12 max-w-3xl">
             100+ formulas. Four tools. Zero spreadsheet panic.
           </h2>
@@ -162,7 +162,7 @@ export default function Landing() {
       {reviews.length > 0 && (
         <section className="border-b border-foreground/15 bg-secondary">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-20">
-            <div className="overline klein mb-3">// COMMUNITY</div>
+            <div className="overline klein mb-3">COMMUNITY</div>
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">What people say.</h2>
@@ -216,7 +216,7 @@ export default function Landing() {
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
             <div className="md:col-span-8">
-              <div className="overline mb-4 text-white/60">// READY?</div>
+              <div className="overline mb-4 text-white/60">READY?</div>
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
                 Stop googling.<br/>
                 Start <span className="text-[#7AA0FF]">mastering</span>.
@@ -229,7 +229,7 @@ export default function Landing() {
                   Create free account
                 </Button>
               </Link>
-              <div className="mt-6 overline text-white/60">// NO CARD · INSTANT ACCESS</div>
+              <div className="mt-6 overline text-white/60">NO CARD · INSTANT ACCESS</div>
             </div>
           </div>
         </div>

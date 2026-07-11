@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { api } from "@/lib/api";
@@ -255,7 +255,7 @@ setTutorials(t.data);
       <main className="max-w-[1400px] mx-auto px-6 lg:px-10 py-10 lg:py-14" data-testid="admin-page">
         <div className="flex items-center gap-3 mb-3">
           <Crown size={28} weight="fill" className="klein" />
-          <div className="overline klein">// ADMIN CONSOLE</div>
+          <div className="overline klein">ADMIN CONSOLE</div>
         </div>
         <h1 className="page-title mb-3">Hello, boss.</h1>
         <p className="text-muted-foreground mb-8">Stats, users, reviews, and payment settings — all yours.</p>
@@ -293,14 +293,14 @@ setTutorials(t.data);
           <TabsContent value="overview" className="mt-6">
             {stats ? (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-l border-t border-foreground/15">
-                <StatCard label="// TOTAL USERS" value={stats.total_users} />
-                <StatCard label="// PRO USERS" value={stats.pro_users} />
-                <StatCard label="// FREE USERS" value={stats.free_users} />
-                <StatCard label="// TOTAL CHATS" value={stats.total_chats} />
-                <StatCard label="// REVIEWS" value={stats.total_reviews} />
-                <StatCard label="// AVG RATING" value={stats.avg_rating || "—"} />
-                <StatCard label="// REVENUE (INR)" value={`₹${stats.total_revenue_inr}`} />
-                <StatCard label="// CONVERSION" value={stats.total_users ? `${Math.round((stats.pro_users / stats.total_users) * 100)}%` : "0%"} />
+                <StatCard label="TOTAL USERS" value={stats.total_users} />
+                <StatCard label="PRO USERS" value={stats.pro_users} />
+                <StatCard label="FREE USERS" value={stats.free_users} />
+                <StatCard label="TOTAL CHATS" value={stats.total_chats} />
+                <StatCard label="REVIEWS" value={stats.total_reviews} />
+                <StatCard label="AVG RATING" value={stats.avg_rating || "—"} />
+                <StatCard label="REVENUE (INR)" value={`₹${stats.total_revenue_inr}`} />
+                <StatCard label="CONVERSION" value={stats.total_users ? `${Math.round((stats.pro_users / stats.total_users) * 100)}%` : "0%"} />
               </div>
             ) : <div className="overline text-muted-foreground">Loading…</div>}
           </TabsContent>
@@ -446,7 +446,7 @@ setTutorials(t.data);
           <TabsContent value="settings" className="mt-6">
             {settings ? (
               <div className="max-w-2xl border border-foreground/15 p-8 bg-white">
-                <div className="overline klein mb-6">// PAYMENT & APP CONFIG</div>
+                <div className="overline klein mb-6">PAYMENT & APP CONFIG</div>
 
                 <div className="space-y-5">
                   <div>
@@ -560,7 +560,7 @@ setTutorials(t.data);
                     </tr>
                   ))}
                   {users.length === 0 && (
-                    <tr><td colSpan={4} className="px-4 py-12 text-center overline text-muted-foreground">// NO USERS</td></tr>
+                    <tr><td colSpan={4} className="px-4 py-12 text-center overline text-muted-foreground">NO USERS</td></tr>
                   )}
                 </tbody>
               </table>
@@ -571,7 +571,7 @@ setTutorials(t.data);
           <TabsContent value="reviews" className="mt-6">
             {reviews.length === 0 ? (
               <div className="border border-foreground/15 p-12 text-center">
-                <div className="overline mb-2">// NO REVIEWS YET</div>
+                <div className="overline mb-2">NO REVIEWS YET</div>
                 <p className="text-muted-foreground text-sm">Once users leave reviews, they'll show here.</p>
               </div>
             ) : (

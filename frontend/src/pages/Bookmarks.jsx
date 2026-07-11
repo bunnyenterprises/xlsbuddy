@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { api } from "@/lib/api";
@@ -55,7 +55,7 @@ export default function Bookmarks() {
     <div className="min-h-screen bg-white dark:bg-gray-950">
       <Header />
       <main className="max-w-[1400px] mx-auto px-6 lg:px-10 py-10 lg:py-14">
-        <div className="overline klein mb-3">// SAVED</div>
+        <div className="overline klein mb-3">SAVED</div>
         <h1 className="page-title mb-3">Your bookmarks.</h1>
         <p className="text-muted-foreground mb-10 max-w-2xl">Functions and tutorials you've saved for quick access.</p>
 
@@ -64,7 +64,7 @@ export default function Bookmarks() {
         ) : bookmarks.length === 0 ? (
           <div className="border border-foreground/15 p-16 text-center">
             <BookmarkSimple size={40} weight="fill" className="text-foreground/20 mx-auto mb-4" />
-            <div className="overline mb-2">// NO BOOKMARKS YET</div>
+            <div className="overline mb-2">NO BOOKMARKS YET</div>
             <p className="text-muted-foreground text-sm mb-6">Browse functions and tutorials and hit Bookmark to save them here.</p>
             <div className="flex gap-4 justify-center">
               <Link to="/functions" className="text-sm font-bold klein underline">Browse Functions →</Link>

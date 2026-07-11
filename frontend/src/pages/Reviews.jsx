@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -60,7 +60,7 @@ export default function Reviews() {
     <div className="min-h-screen bg-white">
       <Header />
       <main className="max-w-[1200px] mx-auto px-6 lg:px-10 py-10 lg:py-14" data-testid="reviews-page">
-        <div className="overline klein mb-3">// COMMUNITY</div>
+        <div className="overline klein mb-3">COMMUNITY</div>
         <h1 className="page-title mb-3">What people say.</h1>
         <p className="text-muted-foreground mb-10 max-w-2xl">
           Real reviews from real users. Loving XLSBuddy? Leave us a Google review too.
@@ -69,7 +69,7 @@ export default function Reviews() {
         {/* Avg + Google CTA */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-l border-t border-foreground/15 mb-12">
           <div className="md:col-span-2 border-r border-b border-foreground/15 p-8 bg-secondary">
-            <div className="overline mb-2">// AVERAGE RATING</div>
+            <div className="overline mb-2">AVERAGE RATING</div>
             <div className="flex items-baseline gap-4">
               <span className="metric-title klein">{avg || "—"}</span>
               <div className="flex">
@@ -90,7 +90,7 @@ export default function Reviews() {
             >
               <div>
                 <GoogleLogo size={36} weight="bold" className="mb-4" />
-                <div className="overline mb-2 text-white/60">// GOOGLE REVIEWS</div>
+                <div className="overline mb-2 text-white/60">GOOGLE REVIEWS</div>
                 <h3 className="text-2xl font-bold tracking-tight">Leave a Google review</h3>
               </div>
               <div className="overline text-[#7AA0FF] mt-4 flex items-center gap-2">
@@ -108,7 +108,7 @@ export default function Reviews() {
         {/* Submit form */}
         {user ? (
           <div className="border border-foreground/15 p-8 bg-white mb-12 max-w-2xl" data-testid="review-form">
-            <div className="overline klein mb-4">// {myReview ? "UPDATE YOUR REVIEW" : "LEAVE A REVIEW"}</div>
+            <div className="overline klein mb-4">{myReview ? "UPDATE YOUR REVIEW" : "LEAVE A REVIEW"}</div>
             <div className="mb-4">
               <div className="overline mb-2">YOUR RATING</div>
               <div className="flex gap-1" onMouseLeave={() => setHover(0)}>
@@ -152,7 +152,7 @@ export default function Reviews() {
         {/* List */}
         {reviews.length === 0 ? (
           <div className="border border-foreground/15 p-12 text-center text-muted-foreground">
-            <div className="overline mb-2">// NO REVIEWS YET</div>
+            <div className="overline mb-2">NO REVIEWS YET</div>
             Be the first to share your thoughts.
           </div>
         ) : (

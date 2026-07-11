@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
@@ -60,7 +60,7 @@ export default function Dashboard() {
                 }`}
               >
                 <Icon size={36} weight="duotone" className={isBlack ? "text-[#7AA0FF]" : "klein"} />
-                <div className={`overline mt-6 mb-2 ${isBlack ? "text-white/60" : "text-muted-foreground"}`}>// 0{i + 1}</div>
+                <div className={`overline mt-6 mb-2 ${isBlack ? "text-white/60" : "text-muted-foreground"}`}>0{i + 1}</div>
                 <h3 className="section-title mb-3">{t.title}</h3>
                 <p className={`text-sm leading-relaxed ${isBlack ? "text-white/75" : "text-muted-foreground"}`}>{t.desc}</p>
                 <ArrowUpRight size={22} className="absolute top-6 right-6 opacity-60 group-hover:opacity-100 transition-opacity" />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+﻿import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { VisualExample } from "@/components/VisualExample";
@@ -116,7 +116,7 @@ export default function FunctionDetail() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-l border-t border-foreground/15">
           <div className="border-r border-b border-foreground/15 p-8 bg-white dark:bg-gray-900">
             <div className="flex items-center justify-between mb-3">
-              <div className="overline klein">// SYNTAX</div>
+              <div className="overline klein">SYNTAX</div>
               <button
                 onClick={() => copy(func.syntax, "syntax")}
                 className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground border border-foreground/15 px-2 py-1 transition-colors"
@@ -129,7 +129,7 @@ export default function FunctionDetail() {
           </div>
           <div className="border-r border-b border-foreground/15 p-8 bg-secondary dark:bg-gray-800">
             <div className="flex items-center justify-between mb-3">
-              <div className="overline klein">// EXAMPLE</div>
+              <div className="overline klein">EXAMPLE</div>
               <button
                 onClick={() => copy(func.example, "example")}
                 className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground border border-foreground/15 px-2 py-1 transition-colors"
@@ -141,7 +141,7 @@ export default function FunctionDetail() {
             <pre className="text-sm bg-black text-white p-4 overflow-x-auto"><code>{func.example}</code></pre>
           </div>
           <div className="md:col-span-2 border-r border-b border-foreground/15 p-8 bg-white dark:bg-gray-900">
-            <div className="overline klein mb-3">// USE CASE</div>
+            <div className="overline klein mb-3">USE CASE</div>
             <p className="text-base leading-relaxed">{func.use_case}</p>
           </div>
         </div>
@@ -151,7 +151,7 @@ export default function FunctionDetail() {
           <section className="mt-10" data-testid="simple-explanation-section">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <div className="overline klein mb-1">// EXPLAIN LIKE I'M 10</div>
+                <div className="overline klein mb-1">EXPLAIN LIKE I'M 10</div>
                 <h2 className="section-title">Simple Explanation</h2>
               </div>
               {/* Language toggle */}
@@ -193,7 +193,7 @@ export default function FunctionDetail() {
         {/* ── Video Tutorials ── */}
         {hasVideos && (
           <section className="mt-10" data-testid="video-section">
-            <div className="overline klein mb-1">// VIDEO TUTORIALS</div>
+            <div className="overline klein mb-1">VIDEO TUTORIALS</div>
             <h2 className="section-title mb-4">Watch it in Action</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {func.video_url && (
@@ -245,7 +245,7 @@ export default function FunctionDetail() {
         {/* ── Excel Visual Preview ── */}
         {func.visual_example && (
           <section className="mt-10" data-testid="visual-example-section">
-            <div className="overline klein mb-1">// SEE IT IN ACTION</div>
+            <div className="overline klein mb-1">SEE IT IN ACTION</div>
             <h2 className="section-title mb-2">Live Excel Preview</h2>
             <p className="text-muted-foreground mb-5 max-w-2xl">
               See exactly how <span className="font-bold klein">{func.name}</span> works in a real Excel spreadsheet.

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ export default function ResetPassword() {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-white dark:bg-[#030712]">
         <div className="text-center max-w-md">
-          <div className="overline klein mb-2">// INVALID LINK</div>
+          <div className="overline klein mb-2">INVALID LINK</div>
           <h2 className="text-2xl font-extrabold mb-3">Reset link is missing.</h2>
           <p className="text-muted-foreground mb-6">Please request a new password reset link.</p>
           <Link to="/forgot-password">
@@ -55,7 +55,7 @@ export default function ResetPassword() {
         {done ? (
           <div className="border border-foreground/15 p-8 text-center">
             <CheckCircle size={40} className="text-green-500 mx-auto mb-4" weight="duotone" />
-            <div className="overline klein mb-2">// SUCCESS</div>
+            <div className="overline klein mb-2">SUCCESS</div>
             <h2 className="text-2xl font-extrabold tracking-tight mb-3">Password updated!</h2>
             <p className="text-muted-foreground mb-6">Your password has been changed. You can now sign in with your new password.</p>
             <Button
@@ -68,7 +68,7 @@ export default function ResetPassword() {
         ) : (
           <form onSubmit={submit} className="space-y-6">
             <div>
-              <div className="overline klein mb-2">// RESET PASSWORD</div>
+              <div className="overline klein mb-2">RESET PASSWORD</div>
               <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight">Choose a new password.</h2>
             </div>
             <div className="space-y-2">

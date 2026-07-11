@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ export default function ForgotPassword() {
         {sent ? (
           <div className="border border-foreground/15 p-8">
             <EnvelopeSimple size={36} className="klein mb-4" weight="duotone" />
-            <div className="overline klein mb-2">// CHECK YOUR INBOX</div>
+            <div className="overline klein mb-2">CHECK YOUR INBOX</div>
             <h2 className="text-2xl font-extrabold tracking-tight mb-3">Email sent!</h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
               If <strong>{email}</strong> is registered, you'll receive a reset link shortly.
@@ -50,7 +50,7 @@ export default function ForgotPassword() {
         ) : (
           <form onSubmit={submit} className="space-y-6">
             <div>
-              <div className="overline klein mb-2">// FORGOT PASSWORD</div>
+              <div className="overline klein mb-2">FORGOT PASSWORD</div>
               <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight mb-2">Reset your password.</h2>
               <p className="text-muted-foreground text-sm">Enter your email and we'll send you a reset link.</p>
             </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,7 @@ export default function Login() {
           <span className="font-black tracking-tight">XLSBUDDY</span>
         </Link>
         <div>
-          <div className="overline mb-6 text-white/70">// WELCOME BACK</div>
+          <div className="overline mb-6 text-white/70">WELCOME BACK</div>
           <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
             Pick up<br/>where you<br/>left off.
           </h1>
@@ -50,7 +50,7 @@ export default function Login() {
             Your saved chats, recent searches, and bookmarked tutorials are waiting.
           </p>
         </div>
-        <div className="overline text-white/50">// 001 / 002</div>
+        <div className="overline text-white/50">001 / 002</div>
       </div>
 
       {/* Right form panel */}

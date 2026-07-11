@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Header } from "@/components/Header";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -48,7 +48,7 @@ export default function FormulaGenerator() {
     <div className="min-h-screen bg-white">
       <Header />
       <main className="max-w-[860px] mx-auto px-6 lg:px-10 py-10 lg:py-14">
-        <div className="overline klein mb-3">// AI FORMULA GENERATOR</div>
+        <div className="overline klein mb-3">AI FORMULA GENERATOR</div>
         <h1 className="page-title mb-3">
           Describe it. Get the formula.
         </h1>
@@ -77,7 +77,7 @@ export default function FormulaGenerator() {
         {result && (
           <div className="border border-foreground/15 bg-white mb-10">
             <div className="border-b border-foreground/15 px-6 py-4 flex items-center justify-between">
-              <div className="overline klein">// YOUR FORMULA</div>
+              <div className="overline klein">YOUR FORMULA</div>
               <Button
                 variant="outline"
                 size="sm"
@@ -95,7 +95,7 @@ export default function FormulaGenerator() {
               <p className="text-sm leading-relaxed mb-4">{result.explanation}</p>
               {result.example && (
                 <div>
-                  <div className="overline text-muted-foreground mb-2">// EXAMPLE</div>
+                  <div className="overline text-muted-foreground mb-2">EXAMPLE</div>
                   <div className="bg-secondary border border-foreground/10 px-4 py-2 font-mono text-sm">
                     {result.example}
                   </div>
@@ -106,7 +106,7 @@ export default function FormulaGenerator() {
         )}
 
         <div>
-          <div className="overline text-muted-foreground mb-4">// TRY THESE</div>
+          <div className="overline text-muted-foreground mb-4">TRY THESE</div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {EXAMPLES.map((ex, i) => (
               <button

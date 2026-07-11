@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { api } from "@/lib/api";
@@ -77,7 +77,7 @@ export default function Pricing() {
     <div className="min-h-screen bg-white">
       <Header />
       <main className="max-w-[1200px] mx-auto px-6 lg:px-10 py-12 lg:py-16" data-testid="pricing-page">
-        <div className="overline klein mb-3">// PRICING</div>
+        <div className="overline klein mb-3">PRICING</div>
         <h1 className="page-title mb-3">Simple. Honest. One plan.</h1>
         <p className="text-muted-foreground max-w-2xl mb-12">
           Start free. Upgrade when you need unlimited AI. Cancel anytime.
@@ -86,7 +86,7 @@ export default function Pricing() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-l border-t border-foreground/15">
           {/* FREE */}
           <div className="border-r border-b border-foreground/15 p-8 lg:p-10 bg-white" data-testid="plan-free">
-            <div className="overline mb-4">// FREE</div>
+            <div className="overline mb-4">FREE</div>
             <div className="flex items-baseline gap-2 mb-6">
               <span className="metric-title">₹0</span>
               <span className="text-muted-foreground">/forever</span>
@@ -117,8 +117,8 @@ export default function Pricing() {
 
           {/* PRO */}
           <div className="border-r border-b border-foreground/15 p-8 lg:p-10 bg-black text-white relative" data-testid="plan-pro">
-            <div className="absolute top-0 right-0 bg-klein text-white text-xs font-bold px-4 py-1 overline">// MOST POPULAR</div>
-            <div className="overline mb-4 text-white/60 flex items-center gap-2"><Crown size={14} weight="fill" /> // PRO</div>
+            <div className="absolute top-0 right-0 bg-klein text-white text-xs font-bold px-4 py-1 overline">MOST POPULAR</div>
+            <div className="overline mb-4 text-white/60 flex items-center gap-2"><Crown size={14} weight="fill" /> PRO</div>
             <div className="flex items-baseline gap-2 mb-1">
               <span className="metric-title text-[#7AA0FF]">₹{price}</span>
               <span className="text-white/60">/month</span>
