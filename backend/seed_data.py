@@ -126,6 +126,19 @@ _HINDI_EXPLANATIONS = {
     "NPER": "NPER बताता है loan चुकाने में कितनी EMI लगेंगी। ₹5000 EMI पर ₹1 लाख का loan — कितने महीने? NPER बताएगा!",
     "IPMT": "IPMT किसी महीने की EMI में interest का हिस्सा बताता है। शुरू में ज्यादा interest देते हो — IPMT यह दिखाता है!",
     "PPMT": "PPMT किसी महीने की EMI में मूलधन का हिस्सा बताता है। IPMT के साथ मिलकर loan की पूरी amortization table बनाओ!",
+    # ── Dynamic Arrays ──
+    "FILTER": "FILTER छलनी जैसा है! सारा data डालो, सिर्फ वही rows निकलती हैं जो तुम्हारी शर्त पूरी करती हैं — बाकी छन जाती हैं!",
+    "SORT": "SORT data को क्रम में लगाता है — A से Z या बड़े से छोटे। Original data बिना छुए नई sorted list बनाता है!",
+    "SORTBY": "SORTBY किसी दूसरे column के हिसाब से sort करता है। नाम की list, age के हिसाब से sort करो — SORTBY एक काम!",
+    "UNIQUE": "UNIQUE duplicates हटाकर सिर्फ अलग-अलग values देता है। 'कौन-कौन से अलग cities हैं?' UNIQUE तुरंत बताता है!",
+    "SEQUENCE": "SEQUENCE numbers की list अपने आप बनाता है। 1 से 100 तक — एक formula, सौ numbers! Calendar dates भी!",
+    # ── Advanced Functions ──
+    "LAMBDA": "LAMBDA से अपना खुद का formula बनाओ जिसे नाम दे सकते हो! जैसे खुद की calculator बनाना — एक बार बनाओ, बार-बार इस्तेमाल करो!",
+    "LET": "LET formula में नाम वाले variables बनाता है। लंबे formula को टुकड़ों में लिखो — साफ, तेज़, और समझने में आसान!",
+    "MAP": "MAP हर cell पर एक formula apply करता है — जैसे assembly line जहाँ हर item एक ही process से गुज़रे!",
+    "REDUCE": "REDUCE list को एक final जवाब में compress करता है। सभी values को एक-एक करके जोड़ता, गुणा करता या process करता है!",
+    "BYROW": "BYROW हर row पर अलग-अलग formula लगाता है। 'हर student के best 3 scores का average' — BYROW एक बार में!",
+    "BYCOL": "BYCOL हर column पर अलग-अलग formula लगाता है। 'हर महीने की weighted average' — BYCOL एक formula में!",
 }
 
 # Merge Hindi explanations into EXCEL_FUNCTIONS after list is defined (done at bottom of file)
@@ -1412,6 +1425,129 @@ EXCEL_FUNCTIONS = [
         "simple_explanation": "PPMT shows the principal portion of your loan payment for a specific month. Together with IPMT, you can build a complete loan amortization schedule!",
         "video_url": _vurl("PPMT"), "video_url_hindi": _hurl("PPMT"),
     },
+    # ============= DYNAMIC ARRAYS (Excel 365 / 2021+) ============= (Excel 365 / 2021+) =============
+    {
+        "name": "FILTER", "category": "Dynamic Arrays",
+        "syntax": "=FILTER(array, include, [if_empty])",
+        "description": "Returns a filtered array based on a Boolean condition. Results spill automatically into neighbouring cells.",
+        "example": '=FILTER(A2:C10, B2:B10="East") returns all rows where column B is "East".',
+        "use_case": "Extract all orders for a specific region, product, or sales rep without copying or sorting data.",
+        "visual_example": {"data": [["A2", "Alice/East"], ["A3", "Bob/West"], ["A4", "Carol/East"]], "formula_cell": "D2", "formula": '=FILTER(A2:A4, C2:C4="East")', "result": "Alice ↓ Carol"},
+        "simple_explanation": "FILTER is like a sieve — pour all your data in and it catches only the rows you need. Everything else falls through!",
+        "video_url": _vurl("FILTER"),
+        "video_url_hindi": _hurl("FILTER"),
+    },
+    {
+        "name": "SORT", "category": "Dynamic Arrays",
+        "syntax": "=SORT(array, [sort_index], [sort_order], [by_col])",
+        "description": "Sorts the contents of a range or array. Leaves the original data untouched — spills a sorted copy.",
+        "example": "=SORT(A2:B10, 2, -1) sorts the range by column 2 in descending order.",
+        "use_case": "Create a live sorted leaderboard or ranking that updates automatically as data changes.",
+        "visual_example": {"data": [["A1", "Bob/85"], ["A2", "Alice/92"], ["A3", "Carol/78"]], "formula_cell": "D1", "formula": "=SORT(A1:B3, 2, -1)", "result": "Alice/92 (top)"},
+        "simple_explanation": "SORT instantly arranges your data from A to Z or highest to lowest — without touching your original list!",
+        "video_url": _vurl("SORT"),
+        "video_url_hindi": _hurl("SORT"),
+    },
+    {
+        "name": "SORTBY", "category": "Dynamic Arrays",
+        "syntax": "=SORTBY(array, by_array1, [sort_order1], ...)",
+        "description": "Sorts a range based on values in a corresponding column — even one outside the source range.",
+        "example": "=SORTBY(A2:A10, B2:B10, 1) sorts names in A by the scores in B ascending.",
+        "use_case": "Sort a name list alphabetically but order it by salary, date, or any external column.",
+        "visual_example": {"data": [["Names", "Alice,Bob,Carol"], ["Ages", "32, 28, 25"]], "formula_cell": "D1", "formula": "=SORTBY(A2:A4, B2:B4, 1)", "result": "Carol (youngest first)"},
+        "simple_explanation": "SORTBY lets you sort one list using a completely different list as the ranking guide — very flexible!",
+        "video_url": _vurl("SORTBY"),
+        "video_url_hindi": _hurl("SORTBY"),
+    },
+    {
+        "name": "UNIQUE", "category": "Dynamic Arrays",
+        "syntax": "=UNIQUE(array, [by_col], [exactly_once])",
+        "description": "Returns a list of unique values from a range, removing duplicates. Spills results automatically.",
+        "example": "=UNIQUE(A2:A100) returns a deduplicated list of all values in column A.",
+        "use_case": "Get a distinct list of customers, products, or regions from a raw data dump.",
+        "visual_example": {"data": [["A2", "East"], ["A3", "West"], ["A4", "East"], ["A5", "North"]], "formula_cell": "C2", "formula": "=UNIQUE(A2:A5)", "result": "East ↓ West ↓ North"},
+        "simple_explanation": "UNIQUE removes all the repeats and keeps just one copy of each item — like sorting your keys and throwing out the duplicates!",
+        "video_url": _vurl("UNIQUE"),
+        "video_url_hindi": _hurl("UNIQUE"),
+    },
+    {
+        "name": "SEQUENCE", "category": "Dynamic Arrays",
+        "syntax": "=SEQUENCE(rows, [columns], [start], [step])",
+        "description": "Generates a sequence of numbers in an array. Can create 1-D or 2-D number grids automatically.",
+        "example": "=SEQUENCE(12, 1, 1, 1) creates a list 1 through 12 — useful for months.",
+        "use_case": "Auto-generate row numbers, date series, or multiplication tables with one formula.",
+        "visual_example": {"data": [["rows", 5], ["start", 1], ["step", 10]], "formula_cell": "B1", "formula": "=SEQUENCE(5, 1, 1, 10)", "result": "1,11,21,31,41"},
+        "simple_explanation": "SEQUENCE is like a smart number printer — tell it where to start, how many to make, and what the step is, and it fills everything in automatically!",
+        "video_url": _vurl("SEQUENCE"),
+        "video_url_hindi": _hurl("SEQUENCE"),
+    },
+    # ============= ADVANCED (Excel 365 Lambda & Helpers) =============
+    {
+        "name": "LET", "category": "Advanced",
+        "syntax": "=LET(name1, value1, [name2, value2, ...], calculation)",
+        "description": "Assigns names to intermediate values inside a formula, making complex formulas readable and faster.",
+        "example": "=LET(tax, A1*0.18, total, A1+tax, total) calculates total including tax cleanly.",
+        "use_case": "Break a monster nested formula into named steps — easier to read, debug, and maintain.",
+        "visual_example": {"data": [["A1 (price)", 1000]], "formula_cell": "B1", "formula": "=LET(tax, A1*0.18, A1+tax)", "result": 1180},
+        "simple_explanation": "LET is like writing a recipe with named ingredients — first define 'sauce = tomatoes + spices', then use 'sauce' in your recipe steps. Much cleaner!",
+        "video_url": _vurl("LET"),
+        "video_url_hindi": _hurl("LET"),
+    },
+    {
+        "name": "LAMBDA", "category": "Advanced",
+        "syntax": "=LAMBDA([parameter1, ...], calculation)",
+        "description": "Creates a custom reusable function with your own name, parameters, and logic — no VBA needed.",
+        "example": "Define: TaxTotal = LAMBDA(price, price * 1.18). Then use =TaxTotal(A1) anywhere.",
+        "use_case": "Build company-specific formulas (e.g., custom pricing, bonus calculation) once and reuse across workbooks.",
+        "visual_example": {"data": [["A1 (salary)", 50000]], "formula_cell": "B1", "formula": "=LAMBDA(s, s*0.1)(A1)", "result": 5000},
+        "simple_explanation": "LAMBDA lets you invent your own Excel function! Name it, define the inputs, write the logic — now you have a custom formula that works just like SUM or VLOOKUP!",
+        "video_url": _vurl("LAMBDA"),
+        "video_url_hindi": _hurl("LAMBDA"),
+    },
+    {
+        "name": "MAP", "category": "Advanced",
+        "syntax": "=MAP(array1, [array2, ...], lambda)",
+        "description": "Applies a LAMBDA function to each element of an array and returns an array of results.",
+        "example": "=MAP(A2:A10, LAMBDA(x, x*1.1)) multiplies each value in A2:A10 by 1.1.",
+        "use_case": "Apply a custom transformation to every item in a list — like a price increase or unit conversion.",
+        "visual_example": {"data": [["A2", 100], ["A3", 200], ["A4", 300]], "formula_cell": "B2", "formula": "=MAP(A2:A4, LAMBDA(x, x*1.1))", "result": "110 ↓ 220 ↓ 330"},
+        "simple_explanation": "MAP is like an assembly line — every item goes through the same transformation. Give it a list and a LAMBDA, and it processes every single row for you!",
+        "video_url": _vurl("MAP"),
+        "video_url_hindi": _hurl("MAP"),
+    },
+    {
+        "name": "REDUCE", "category": "Advanced",
+        "syntax": "=REDUCE([initial_value], array, lambda)",
+        "description": "Reduces an array to a single accumulated value by applying a LAMBDA with running accumulator.",
+        "example": "=REDUCE(0, A2:A10, LAMBDA(acc, x, acc+x)) sums the array (like SUM but with custom logic).",
+        "use_case": "Custom running totals, compound calculations, or any aggregation that standard functions can't handle.",
+        "visual_example": {"data": [["A2", 10], ["A3", 20], ["A4", 30]], "formula_cell": "B1", "formula": "=REDUCE(0, A2:A4, LAMBDA(a,x, a+x))", "result": 60},
+        "simple_explanation": "REDUCE rolls through your list like a snowball — picking up and combining each value as it goes until there's one final answer at the end!",
+        "video_url": _vurl("REDUCE"),
+        "video_url_hindi": _hurl("REDUCE"),
+    },
+    {
+        "name": "BYROW", "category": "Advanced",
+        "syntax": "=BYROW(array, lambda)",
+        "description": "Applies a LAMBDA to each row of an array and returns an array of results, one value per row.",
+        "example": "=BYROW(A2:C10, LAMBDA(row, MAX(row))) returns the max value from each row.",
+        "use_case": "Find the highest score per student, total sales per row, or any per-row summary across multiple columns.",
+        "visual_example": {"data": [["Row 1", "80, 90, 85"], ["Row 2", "70, 65, 75"]], "formula_cell": "D2", "formula": "=BYROW(A2:C3, LAMBDA(r, MAX(r)))", "result": "90 ↓ 75"},
+        "simple_explanation": "BYROW runs your formula on each row individually — like grading each student's best subject instead of the whole class at once!",
+        "video_url": _vurl("BYROW"),
+        "video_url_hindi": _hurl("BYROW"),
+    },
+    {
+        "name": "BYCOL", "category": "Advanced",
+        "syntax": "=BYCOL(array, lambda)",
+        "description": "Applies a LAMBDA to each column of an array and returns an array of results, one value per column.",
+        "example": "=BYCOL(A2:D10, LAMBDA(col, AVERAGE(col))) returns the average of each column.",
+        "use_case": "Calculate monthly averages, column-level statistics, or any per-column summary across multiple rows.",
+        "visual_example": {"data": [["Jan", "Feb", "Mar"], ["100, 120, 90"]], "formula_cell": "A5", "formula": "=BYCOL(A2:C3, LAMBDA(c, SUM(c)))", "result": "100 | 120 | 90"},
+        "simple_explanation": "BYCOL runs your formula on each column individually — like totalling each month's sales separately instead of all at once!",
+        "video_url": _vurl("BYCOL"),
+        "video_url_hindi": _hurl("BYCOL"),
+    },
 ]
 
 # Merge Hindi explanations into each function
@@ -2013,5 +2149,648 @@ Selection.AutoFormat Format:=xlRangeAutoFormatTable3
 
 ### Save as macro-enabled
 Always save macro files as **.xlsm** (Excel Macro-Enabled Workbook) — otherwise macros are lost."""
+    },
+    # ===== NEW ADVANCED TUTORIALS =====
+    {
+        "title": "Power BI and Excel: Working Together",
+        "category": "Power BI",
+        "level": "Intermediate",
+        "is_pro": False,
+        "summary": "Learn how to connect Excel data to Power BI for interactive reports and dashboards that update automatically.",
+        "content": """## What is Power BI?
+
+Power BI is Microsoft's business intelligence tool that turns data into interactive visual dashboards. Excel is the best data source to get started.
+
+### The Excel → Power BI workflow
+1. **Prepare your data in Excel** — use Tables (Ctrl+T) so Power BI can detect column names automatically.
+2. **Open Power BI Desktop** — free download from powerbi.microsoft.com.
+3. **Get Data > Excel** — point it to your .xlsx file.
+4. **Select the table** you want to import in the Navigator window.
+5. **Load or Transform** — "Load" imports as-is; "Transform Data" opens Power Query to clean it first.
+
+### Build your first report
+- **Drag fields** from the right panel onto the canvas.
+- Use the **Visualizations pane** to choose chart type: bar, line, map, card.
+- Add a **Slicer** visual for filtering by year, region, or product.
+
+### Keep data in sync
+- In Power BI Desktop: click **Refresh** on the Home tab to pull fresh Excel data.
+- Publish to **Power BI Service** (app.powerbi.com) so your team can view live reports in a browser.
+- With Power BI Service, set up **Scheduled Refresh** — your report updates automatically every day.
+
+### Excel vs Power BI: when to use which
+| Task | Use |
+|---|---|
+| Ad-hoc calculation, single file | Excel |
+| Interactive visual dashboard for a team | Power BI |
+| Combining many data sources | Power BI |
+| Pivot table on one dataset | Excel |
+| Sharing auto-refreshed reports | Power BI |
+
+### DAX: Power BI's formula language
+DAX (Data Analysis Expressions) is similar to Excel formulas but designed for tables:
+- `Total Sales = SUM(Orders[Amount])`
+- `Sales YoY% = DIVIDE([This Year Sales] - [Last Year Sales], [Last Year Sales])`
+- `Running Total = CALCULATE([Total Sales], DATESYTD(Calendar[Date]))`
+
+### Key tip
+Keep your Excel file as a structured **Table** (not a plain range). Power BI needs consistent column headers and data types to refresh reliably."""
+    },
+    {
+        "title": "LET and LAMBDA: Build Your Own Excel Functions",
+        "category": "Advanced Formulas",
+        "level": "Advanced",
+        "is_pro": True,
+        "summary": "Use LET to write clean readable formulas and LAMBDA to create custom named functions — no VBA needed.",
+        "content": """## Why LET and LAMBDA?
+
+Excel formulas can become unreadable monsters. LET and LAMBDA let you write clean, reusable, and well-named logic.
+
+## LET — name your intermediate values
+
+### Problem without LET
+```
+=IF(A2*B2*0.18>500, A2*B2 + A2*B2*0.18 + 50, A2*B2 + A2*B2*0.18)
+```
+Hard to read. Calculates the same things multiple times (slow on large sheets).
+
+### Solution with LET
+```
+=LET(
+  qty,    A2,
+  price,  B2,
+  subtotal, qty * price,
+  tax,    subtotal * 0.18,
+  shipping, IF(subtotal > 500, 0, 50),
+  subtotal + tax + shipping
+)
+```
+Each name is defined once, used anywhere in the formula. Much faster on large ranges.
+
+### LET syntax
+`=LET(name1, value1, name2, value2, ..., final_calculation)`
+- Names can be anything (no spaces).
+- Last argument is always the result you want returned.
+
+## LAMBDA — create a named reusable function
+
+### Define the function in Name Manager
+1. Go to **Formulas > Name Manager > New**.
+2. Set **Name**: `TaxTotal`
+3. Set **Refers to**: `=LAMBDA(price, price * 1.18)`
+4. Click OK.
+
+Now use it anywhere: `=TaxTotal(A2)`
+
+### LAMBDA with multiple parameters
+```
+BonusPay = LAMBDA(salary, rating,
+  LET(
+    base,  salary * 0.1,
+    boost, IF(rating >= 4, base * 1.5, base),
+    boost
+  )
+)
+```
+Usage: `=BonusPay(B2, C2)` — clean and reusable!
+
+### Recursive LAMBDA — advanced
+LAMBDA can call itself for recursive calculations:
+```
+Factorial = LAMBDA(n,
+  IF(n <= 1, 1, n * Factorial(n-1))
+)
+```
+Use: `=Factorial(5)` returns 120.
+
+## LAMBDA helper functions (Excel 365)
+| Function | What it does |
+|---|---|
+| `MAP(array, LAMBDA)` | Transform every element |
+| `FILTER` | Already covered |
+| `REDUCE(init, array, LAMBDA)` | Accumulate to one value |
+| `BYROW(array, LAMBDA)` | Run LAMBDA on each row |
+| `BYCOL(array, LAMBDA)` | Run LAMBDA on each column |
+| `SCAN(init, array, LAMBDA)` | Like REDUCE but keeps every step |
+| `MAKEARRAY(rows, cols, LAMBDA)` | Build a grid using row/col index |
+
+### Practical example: rank every student per subject
+```
+=BYROW(B2:D20, LAMBDA(row, RANK(MAX(row), row, 0)))
+```
+Returns the rank of each student's highest subject score."""
+    },
+    {
+        "title": "Power Pivot and DAX: Intro for Excel Users",
+        "category": "Power BI",
+        "level": "Advanced",
+        "is_pro": True,
+        "summary": "Use Power Pivot to analyse millions of rows in Excel and write DAX measures for calculations beyond regular pivot tables.",
+        "content": """## What is Power Pivot?
+
+Power Pivot is a free Excel add-in that lets you:
+- Load **millions of rows** without slowing Excel down.
+- Combine data from **multiple tables** using relationships (like a database join).
+- Write **DAX measures** for advanced calculations that regular pivot tables can't do.
+
+### Enable Power Pivot
+1. **File > Options > Add-ins**.
+2. Select **COM Add-ins** in Manage, click Go.
+3. Check **Microsoft Office Power Pivot** and click OK.
+4. A new **Power Pivot** tab appears in the ribbon.
+
+### Load data into the Data Model
+1. Select your Table → **Power Pivot > Add to Data Model**.
+2. Or use **Data > Get Data** to import from CSV, SQL, SharePoint, etc.
+
+### Create relationships between tables
+In Power Pivot window: **Home > Diagram View**.
+- Drag the foreign key column from one table onto the primary key of another.
+- Example: `Orders[ProductID]` → `Products[ID]`.
+
+### Writing DAX measures
+
+#### Basic measure
+```
+Total Sales := SUM(Orders[Amount])
+```
+Create in the calculation area at the bottom of the Power Pivot window.
+
+#### Calculated column vs measure
+- **Calculated column**: runs row-by-row (like a regular Excel formula).
+- **Measure**: runs on filtered context — smarter and more powerful.
+
+#### Useful DAX patterns
+```dax
+-- Percentage of total
+Sales % = DIVIDE([Total Sales], CALCULATE([Total Sales], ALL(Orders)))
+
+-- Year-to-date
+Sales YTD := TOTALYTD([Total Sales], Calendar[Date])
+
+-- Same period last year
+Sales LY := CALCULATE([Total Sales], SAMEPERIODLASTYEAR(Calendar[Date]))
+
+-- Running total
+Running Sales := CALCULATE([Total Sales], DATESYTD(Calendar[Date]))
+```
+
+### Date table — required for time intelligence
+```dax
+Calendar = CALENDAR(DATE(2020,1,1), DATE(2026,12,31))
+```
+Then add columns: Year, Month, Quarter, Weekday using DAX calculated columns.
+Mark it as a date table: **Design > Mark as Date Table**.
+
+### Use your measures in a Pivot Table
+1. Insert a regular Pivot Table, but in the dialog choose **Use this workbook's Data Model**.
+2. Your measures appear under each table in the field list.
+3. Drag measures into Values — they respect all slicer and row/column filters automatically."""
+    },
+    {
+        "title": "Data Validation: Dropdowns, Rules and Error Messages",
+        "category": "Data Entry",
+        "level": "Beginner",
+        "is_pro": False,
+        "summary": "Prevent bad data entry with dropdown lists, number limits, and custom error messages using Excel's Data Validation.",
+        "content": """## Why Data Validation?
+
+Dirty data breaks formulas and reports. Data Validation stops wrong entries before they happen.
+
+### Open Data Validation
+Select a cell or range → **Data > Data Validation**.
+
+---
+
+## Dropdown lists
+
+### Simple dropdown (typed values)
+1. Select the cell(s) for the dropdown.
+2. **Data Validation > Allow: List**.
+3. In the Source box, type: `Yes,No,Pending` (comma-separated, no spaces).
+4. Click OK.
+
+### Dropdown from a range
+1. Type your options in a separate column, e.g. `F1:F5`.
+2. In Source, select that range: `=$F$1:$F$5`.
+3. Name the range (optional): **Formulas > Name Manager > New** → call it `StatusList`.
+4. Then use `=StatusList` as the source — easier to update.
+
+### Dependent (cascading) dropdowns
+- Cell B2 picks a Region; Cell C2 shows only cities in that region.
+1. Create named ranges: `East = {"Mumbai","Pune"}`, `West = {"Delhi","Jaipur"}`.
+2. In C2 validation: Source = `=INDIRECT(B2)`.
+Now C2's dropdown changes based on B2.
+
+---
+
+## Number and date rules
+
+### Allow only whole numbers in a range
+- Allow: **Whole number** | Data: **between** | Min: 1 | Max: 100
+
+### Allow only future dates
+- Allow: **Date** | Data: **greater than** | Start date: `=TODAY()`
+
+### Allow only text of a specific length
+- Allow: **Text length** | Data: **equal to** | Length: 10 (e.g. for 10-digit phone numbers)
+
+---
+
+## Custom validation with formulas
+Allow: **Custom** — enter any formula that returns TRUE (valid) or FALSE (blocked).
+
+**Example**: Allow entry only if it doesn't already exist in a list (no duplicates):
+`=COUNTIF($A$1:$A$100, A1) <= 1`
+
+**Example**: Allow only uppercase text:
+`=EXACT(A1, UPPER(A1))`
+
+---
+
+## Error messages
+In the **Error Alert** tab:
+- **Stop**: blocks the entry completely.
+- **Warning**: allows entry after confirmation.
+- **Information**: shows a message but doesn't block.
+
+Custom message example — Title: `Invalid Entry`, Message: `Please enter a value between 1 and 100.`
+
+---
+
+## Highlight invalid data after the fact
+**Data > Data Validation > Circle Invalid Data** — Excel draws red circles around cells that violate rules, even ones entered before validation was added."""
+    },
+    {
+        "title": "Advanced VBA: UserForms and Event Handlers",
+        "category": "Automation",
+        "level": "Advanced",
+        "is_pro": True,
+        "summary": "Build interactive Excel apps with custom forms, input dialogs, and automatic triggers using VBA events and UserForms.",
+        "content": """## Beyond Basic Macros
+
+You already know how to record a macro. Now let's build real interactive tools.
+
+## UserForms — custom dialog boxes
+
+### Create a UserForm
+1. Press **Alt + F11** to open the VBA editor.
+2. In the Project panel, right-click your workbook → **Insert > UserForm**.
+3. A blank form appears with the Toolbox (controls) panel.
+
+### Add controls from the Toolbox
+| Control | Use |
+|---|---|
+| TextBox | User types input |
+| ComboBox | Dropdown picker |
+| ListBox | Multi-select list |
+| CheckBox | Yes/No toggle |
+| OptionButton | Radio button |
+| CommandButton | Trigger an action |
+| Label | Static text |
+
+### Wire up a button
+Double-click a CommandButton to auto-create its Click event:
+```vba
+Private Sub btnSubmit_Click()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("Data")
+    Dim nextRow As Long
+    nextRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
+    ws.Cells(nextRow, 1).Value = txtName.Text
+    ws.Cells(nextRow, 2).Value = txtAmount.Text
+    ws.Cells(nextRow, 3).Value = Now()
+    MsgBox "Entry saved!", vbInformation
+    Me.Hide
+End Sub
+```
+
+### Open the form from a macro
+```vba
+Sub ShowEntryForm()
+    UserForm1.Show
+End Sub
+```
+Assign this to a button on the sheet: right-click a shape → Assign Macro.
+
+---
+
+## Event Handlers — trigger code automatically
+
+### Workbook events (in ThisWorkbook module)
+```vba
+Private Sub Workbook_Open()
+    MsgBox "Welcome! Today is " & Format(Now(), "dd-mmm-yyyy")
+End Sub
+
+Private Sub Workbook_BeforeSave(ByVal SaveAsUI As Boolean, Cancel As Boolean)
+    ' Auto-stamp the last saved time
+    Sheets("Log").Range("A1").Value = "Last saved: " & Now()
+End Sub
+```
+
+### Worksheet events (in each Sheet module)
+```vba
+Private Sub Worksheet_Change(ByVal Target As Range)
+    ' Highlight a row red if column C changes to "Cancelled"
+    If Target.Column = 3 Then
+        If Target.Value = "Cancelled" Then
+            Target.EntireRow.Interior.Color = RGB(255, 200, 200)
+        End If
+    End If
+End Sub
+
+Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+    ' Show the column header in a status cell when user selects a cell
+    Range("Z1").Value = "Column: " & Cells(1, Target.Column).Value
+End Sub
+```
+
+---
+
+## Useful VBA patterns
+
+### Loop through all sheets
+```vba
+Dim ws As Worksheet
+For Each ws In ThisWorkbook.Worksheets
+    ws.Range("A1").Value = ws.Name
+Next ws
+```
+
+### Find and replace across sheets
+```vba
+For Each ws In ThisWorkbook.Worksheets
+    ws.Cells.Replace What:="Old Text", Replacement:="New Text"
+Next ws
+```
+
+### Import a CSV automatically
+```vba
+Sub ImportCSV()
+    Dim path As String
+    path = Application.GetOpenFilename("CSV Files (*.csv), *.csv")
+    If path = "False" Then Exit Sub
+    Workbooks.Open path
+End Sub
+```
+
+### Protect all sheets with one macro
+```vba
+Sub ProtectAll()
+    Dim ws As Worksheet
+    For Each ws In ThisWorkbook.Worksheets
+        ws.Protect Password:="secret123", UserInterfaceOnly:=True
+    Next ws
+    MsgBox "All sheets protected."
+End Sub
+```"""
+    },
+    {
+        "title": "Dynamic Arrays: The New Way to Write Formulas",
+        "category": "Advanced Formulas",
+        "level": "Intermediate",
+        "is_pro": False,
+        "summary": "Master FILTER, SORT, UNIQUE, and SEQUENCE — the Excel 365 functions that automatically spill results into multiple cells.",
+        "content": """## What are Dynamic Arrays?
+
+Before Excel 365, formulas always produced one result in one cell. Dynamic array functions **spill** their results automatically into as many cells as needed.
+
+### The # spill reference
+Once a formula spills, reference its entire output range with `#`:
+```
+=SORT(A2:A20)         → spills in E2 down to E21
+=COUNTA(E2#)          → counts all spilled results
+=VLOOKUP("Alice", E2#, 1, FALSE)   → searches the spill range
+```
+
+---
+
+## FILTER — extract matching rows
+```
+=FILTER(array, condition, [if_empty])
+```
+**Examples**:
+```
+=FILTER(A2:C100, B2:B100="East")
+Returns every row where column B is "East"
+
+=FILTER(A2:C100, (B2:B100="East") * (C2:C100>500))
+AND condition — East AND amount > 500
+
+=FILTER(A2:C100, (B2:B100="East") + (B2:B100="West"))
+OR condition — East OR West
+```
+
+---
+
+## SORT — live sorted output
+```
+=SORT(range, [sort_col], [order], [by_col])
+```
+| Argument | Values |
+|---|---|
+| sort_col | Column number to sort by (default 1) |
+| order | 1 = ascending, -1 = descending |
+| by_col | FALSE = sort rows, TRUE = sort columns |
+
+**Examples**:
+```
+=SORT(A2:B20)                  → sort by first column A→Z
+=SORT(A2:B20, 2, -1)           → sort by column 2, largest first
+=SORT(UNIQUE(A2:A50))          → sorted unique list (combine two functions)
+```
+
+---
+
+## UNIQUE — de-duplicate instantly
+```
+=UNIQUE(array, [by_col], [exactly_once])
+```
+```
+=UNIQUE(A2:A100)          → all distinct values
+=UNIQUE(A2:A100,,TRUE)    → only values that appear ONCE (no repeats)
+```
+**Combine with SORT and FILTER**:
+```
+=SORT(UNIQUE(FILTER(A2:A100, B2:B100="East")))
+→ Sorted unique list of East region names
+```
+
+---
+
+## SEQUENCE — auto number series
+```
+=SEQUENCE(rows, [cols], [start], [step])
+```
+```
+=SEQUENCE(12)               → 1 to 12
+=SEQUENCE(12, 1, 0, 5)      → 0, 5, 10, 15 ... 55
+=SEQUENCE(5, 7)             → 5-row × 7-column grid of numbers
+=TODAY() + SEQUENCE(30)-1   → next 30 dates starting today
+```
+
+---
+
+## SORTBY — sort by an external array
+```
+=SORTBY(array, sort_by1, [order1], ...)
+```
+```
+=SORTBY(A2:A20, B2:B20, -1)
+→ Sort names in A by scores in B (highest first)
+
+=SORTBY(A2:C20, C2:C20, -1, B2:B20, 1)
+→ Sort by column C descending, then column B ascending (multi-level sort)
+```
+
+---
+
+## Practical example: live top-10 leaderboard
+Put this in one cell and it auto-updates:
+```
+=TAKE(SORT(A2:B100, 2, -1), 10)
+```
+Returns the top 10 rows sorted by column B descending.
+(`TAKE` is available in Excel 365 2022+)"""
+    },
+    {
+        "title": "Macro Scripting: 10 VBA Scripts Every Analyst Needs",
+        "category": "Automation",
+        "level": "Intermediate",
+        "is_pro": False,
+        "summary": "Ready-to-use VBA scripts for automating common analyst tasks — cleaning data, formatting reports, and sending email notifications.",
+        "content": """## Ready-to-Use VBA Scripts
+
+Press **Alt + F11**, insert a Module, paste any script below, and run it with **F5** or a button.
+
+---
+
+### 1. Delete all empty rows in a sheet
+```vba
+Sub DeleteEmptyRows()
+    Dim i As Long
+    For i = ActiveSheet.UsedRange.Rows.Count + 1 To 1 Step -1
+        If WorksheetFunction.CountA(Rows(i)) = 0 Then Rows(i).Delete
+    Next i
+    MsgBox "Empty rows removed."
+End Sub
+```
+
+### 2. Remove duplicate rows (keep first occurrence)
+```vba
+Sub RemoveDuplicates()
+    ActiveSheet.UsedRange.RemoveDuplicates Columns:=1, Header:=xlYes
+End Sub
+```
+
+### 3. Auto-fit all columns on all sheets
+```vba
+Sub AutoFitAll()
+    Dim ws As Worksheet
+    For Each ws In ActiveWorkbook.Worksheets
+        ws.Cells.EntireColumn.AutoFit
+    Next ws
+End Sub
+```
+
+### 4. Convert all text-numbers to real numbers
+```vba
+Sub FixTextNumbers()
+    Dim cell As Range
+    For Each cell In Selection
+        If IsNumeric(cell.Value) Then cell.Value = CDbl(cell.Value)
+    Next cell
+End Sub
+```
+
+### 5. Highlight cells above average in selection
+```vba
+Sub HighlightAboveAverage()
+    Dim avg As Double
+    avg = WorksheetFunction.Average(Selection)
+    Dim cell As Range
+    For Each cell In Selection
+        If IsNumeric(cell.Value) Then
+            If cell.Value > avg Then
+                cell.Interior.Color = RGB(198, 239, 206)
+            End If
+        End If
+    Next cell
+End Sub
+```
+
+### 6. Create a table of contents for all sheets
+```vba
+Sub CreateTOC()
+    Dim tocSheet As Worksheet
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    Worksheets("TOC").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+    Set tocSheet = Worksheets.Add(Before:=Worksheets(1))
+    tocSheet.Name = "TOC"
+    tocSheet.Range("A1").Value = "Sheet Name"
+    tocSheet.Range("B1").Value = "Link"
+    Dim i As Integer
+    For i = 2 To Worksheets.Count
+        tocSheet.Cells(i, 1).Value = Worksheets(i).Name
+        tocSheet.Hyperlinks.Add Anchor:=tocSheet.Cells(i, 2), _
+            Address:="", SubAddress:="'" & Worksheets(i).Name & "'!A1", _
+            TextToDisplay:="Go to sheet"
+    Next i
+End Sub
+```
+
+### 7. Export each sheet as a separate PDF
+```vba
+Sub ExportSheetsPDF()
+    Dim ws As Worksheet
+    Dim path As String
+    path = ThisWorkbook.Path & "\"
+    For Each ws In ActiveWorkbook.Worksheets
+        ws.ExportAsFixedFormat Type:=xlTypePDF, _
+            Filename:=path & ws.Name & ".pdf"
+    Next ws
+    MsgBox "All sheets exported as PDFs."
+End Sub
+```
+
+### 8. Timestamp every cell edit in column A → column B
+Paste in the **Sheet module** (not a regular module):
+```vba
+Private Sub Worksheet_Change(ByVal Target As Range)
+    If Target.Column = 1 Then
+        Target.Offset(0, 1).Value = Now()
+    End If
+End Sub
+```
+
+### 9. Fill blank cells with value above (forward-fill)
+```vba
+Sub ForwardFill()
+    Dim cell As Range
+    For Each cell In Selection
+        If IsEmpty(cell) And cell.Row > 1 Then
+            cell.Value = cell.Offset(-1, 0).Value
+        End If
+    Next cell
+End Sub
+```
+
+### 10. Send email via Outlook when a cell changes
+```vba
+Sub SendAlert()
+    Dim oApp As Object, oMail As Object
+    Set oApp = CreateObject("Outlook.Application")
+    Set oMail = oApp.CreateItem(0)
+    oMail.To = "manager@company.com"
+    oMail.Subject = "Alert: Value changed in " & ActiveCell.Address
+    oMail.Body = "Cell " & ActiveCell.Address & " changed to " & ActiveCell.Value
+    oMail.Send
+    MsgBox "Email sent."
+End Sub
+```"""
     },
 ]
