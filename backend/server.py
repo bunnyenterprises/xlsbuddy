@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Response
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -12,6 +12,8 @@ from datetime import datetime, timezone, timedelta
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(str(ROOT_DIR / '.env'))
+
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 
 from auth import hash_password, verify_password, create_token, get_current_user_id
 from seed_data import EXCEL_FUNCTIONS, TUTORIALS
@@ -60,6 +62,12 @@ class ResetPasswordRequest(BaseModel):
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://www.xlsbuddy.com')
+AUTH_COOKIE_NAME = os.environ.get('AUTH_COOKIE_NAME', 'xlsbuddy_session')
+AUTH_COOKIE_SECURE = os.environ.get('AUTH_COOKIE_SECURE', 'false').lower() == 'true'
+AUTH_COOKIE_SAMESITE = os.environ.get('AUTH_COOKIE_SAMESITE', 'Lax')
+AUTH_COOKIE_DOMAIN = os.environ.get('AUTH_COOKIE_DOMAIN') or None
+AUTH_COOKIE_PATH = os.environ.get('AUTH_COOKIE_PATH', '/')
+AUTH_COOKIE_MAX_AGE = int(os.environ.get('AUTH_COOKIE_MAX_AGE', str(60 * 60 * 24 * 30)))
 
 SYSTEM_PROMPT = """You are XLSBUDDY AI, an expert Excel assistant. You help users with:
 - Excel formulas and functions (syntax, examples, troubleshooting)
@@ -75,55 +83,114 @@ Always:
 - If a question is not Excel-related, politely redirect to Excel topics."""
 
 
+def set_auth_cookie(response: Response, token: str):
+    response.set_cookie(
+        key=AUTH_COOKIE_NAME,
+        value=token,
+        httponly=True,
+        secure=AUTH_COOKIE_SECURE,
+        samesite=AUTH_COOKIE_SAMESITE,
+        domain=AUTH_COOKIE_DOMAIN,
+        path=AUTH_COOKIE_PATH,
+        max_age=AUTH_COOKIE_MAX_AGE,
+        expires=AUTH_COOKIE_MAX_AGE,
+    )
+
+
 # ============= AUTH =============
 def public_user(user: dict) -> dict:
     return {
         "id": user["id"],
         "email": user["email"],
         "name": user["name"],
-        "is_admin": bool(user.get("is_admin")) or user.get("email", "").lower() == ADMIN_EMAIL,
+        "is_admin": bool(user.get("is_admin")),
         "is_pro": bool(user.get("is_pro")),
         "pro_since": user.get("pro_since"),
     }
 
 
 @api_router.post("/auth/signup", response_model=AuthResponse)
-async def signup(req: SignupRequest):
+async def signup(req: SignupRequest, response: Response):
     existing = await db.users.find_one({"email": req.email.lower()})
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     user_id = str(uuid.uuid4())
-    is_admin = req.email.lower() == ADMIN_EMAIL
     user_doc = {
         "id": user_id,
         "email": req.email.lower(),
         "name": req.name,
         "password_hash": hash_password(req.password),
-        "is_admin": is_admin,
+        "is_admin": False,
         "is_pro": False,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.users.insert_one(user_doc)
     token = create_token(user_id)
+    set_auth_cookie(response, token)
     return AuthResponse(token=token, user=public_user(user_doc))
 
 
 @api_router.post("/auth/login", response_model=AuthResponse)
-async def login(req: LoginRequest):
+async def login(req: LoginRequest, response: Response):
     user = await db.users.find_one({"email": req.email.lower()}, {"_id": 0})
     if not user or not verify_password(req.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
-    # Auto-promote admin email if not yet admin
-    if not user.get("is_admin") and user.get("email", "").lower() == ADMIN_EMAIL:
-        await db.users.update_one({"id": user["id"]}, {"$set": {"is_admin": True}})
-        user["is_admin"] = True
     token = create_token(user["id"])
+    set_auth_cookie(response, token)
     return AuthResponse(token=token, user=public_user(user))
+
+
+@api_router.post("/auth/logout")
+async def logout(response: Response):
+    response.delete_cookie(
+        key=AUTH_COOKIE_NAME,
+        path=AUTH_COOKIE_PATH,
+        domain=AUTH_COOKIE_DOMAIN,
+    )
+    return {"message": "Logged out"}
+
+
+def _send_reset_email(to_email: str, name: str, reset_url: str):
+    """Send password reset email via Gmail SMTP."""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    gmail_user = os.environ.get("GMAIL_USER")
+    gmail_pass = os.environ.get("GMAIL_APP_PASSWORD")
+    if not gmail_user or not gmail_pass:
+        raise ValueError("GMAIL_USER or GMAIL_APP_PASSWORD not set")
+
+    html_body = f"""
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
+      <div style="background:#002FA7;padding:16px 24px;margin-bottom:32px;">
+        <span style="color:white;font-weight:900;font-size:18px;letter-spacing:1px;">XLSBUDDY</span>
+      </div>
+      <h2 style="color:#0f172a;margin:0 0 16px;">Reset your password</h2>
+      <p style="color:#475569;line-height:1.6;">Hi {name},</p>
+      <p style="color:#475569;line-height:1.6;">Click the button below to set a new password. This link expires in <strong>1 hour</strong>.</p>
+      <a href="{reset_url}" style="display:inline-block;margin:24px 0;background:#002FA7;color:white;padding:14px 28px;font-weight:bold;text-decoration:none;font-size:15px;">
+        Reset Password
+      </a>
+      <p style="color:#94a3b8;font-size:13px;">Or copy this link: {reset_url}</p>
+      <p style="color:#94a3b8;font-size:13px;margin-top:32px;">If you didn't request this, you can safely ignore this email.</p>
+    </div>
+    """
+
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = "Reset your XLSBuddy password"
+    msg["From"] = f"XLSBuddy <{gmail_user}>"
+    msg["To"] = to_email
+    msg.attach(MIMEText(html_body, "html"))
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        server.login(gmail_user, gmail_pass)
+        server.sendmail(gmail_user, to_email, msg.as_string())
 
 
 @api_router.post("/auth/forgot-password")
 async def forgot_password(req: ForgotPasswordRequest):
-    import secrets, resend
+    import secrets
     user = await db.users.find_one({"email": req.email.lower()})
     if user:
         token = secrets.token_urlsafe(32)
@@ -138,28 +205,10 @@ async def forgot_password(req: ForgotPasswordRequest):
         })
         reset_url = f"{FRONTEND_URL}/reset-password?token={token}"
         try:
-            resend.api_key = RESEND_API_KEY
-            resend.Emails.send({
-                "from": "XLSBuddy <onboarding@resend.dev>",
-                "to": [user["email"]],
-                "subject": "Reset your XLSBuddy password",
-                "html": f"""
-                <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
-                  <div style="background:#002FA7;padding:16px 24px;margin-bottom:32px;">
-                    <span style="color:white;font-weight:900;font-size:18px;letter-spacing:1px;">XLSBUDDY</span>
-                  </div>
-                  <h2 style="color:#0f172a;margin:0 0 16px;">Reset your password</h2>
-                  <p style="color:#475569;line-height:1.6;">Hi {user['name']},</p>
-                  <p style="color:#475569;line-height:1.6;">Click the button below to set a new password. This link expires in <strong>1 hour</strong>.</p>
-                  <a href="{reset_url}" style="display:inline-block;margin:24px 0;background:#002FA7;color:white;padding:14px 28px;font-weight:bold;text-decoration:none;font-size:15px;">
-                    Reset Password
-                  </a>
-                  <p style="color:#94a3b8;font-size:13px;margin-top:32px;">If you didn't request this, you can safely ignore this email.</p>
-                </div>
-                """,
-            })
+            _send_reset_email(user["email"], user["name"], reset_url)
+            logger.info(f"Password reset email sent to {user['email']}")
         except Exception:
-            logging.exception("Password reset email failed")
+            logger.exception("Password reset email failed")
     # Always return success — prevents email enumeration
     return {"message": "If that email is registered, a reset link has been sent."}
 
@@ -480,12 +529,14 @@ for route in api_router.routes:
     print(route.path)
 app.include_router(api_router)
 
+cors_origins = [o.strip() for o in os.environ.get('CORS_ORIGINS', '').split(',') if o.strip()]
+cors_allow_credentials = os.environ.get('CORS_ALLOW_CREDENTIALS', 'false').lower() == 'true'
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_origins=cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=cors_allow_credentials,
 )
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -494,11 +545,21 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def seed_db():
-    # Auto-promote admin if user already exists
-    await db.users.update_many(
-        {"email": ADMIN_EMAIL},
-        {"$set": {"is_admin": True}}
-    )
+    if ADMIN_PASSWORD:
+        admin = await db.users.find_one({"email": ADMIN_EMAIL})
+        if not admin:
+            logger.info("Seeding admin user from environment")
+            await db.users.insert_one({
+                "id": str(uuid.uuid4()),
+                "email": ADMIN_EMAIL,
+                "name": "Admin",
+                "password_hash": hash_password(ADMIN_PASSWORD),
+                "is_admin": True,
+                "is_pro": True,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            })
+        elif not admin.get("is_admin"):
+            await db.users.update_one({"email": ADMIN_EMAIL}, {"$set": {"is_admin": True}})
     # Seed Excel functions — re-seed when count changed or schema fields missing
     db_count = await db.excel_functions.count_documents({})
     needs_reseed = db_count == 0 or db_count < len(EXCEL_FUNCTIONS)
