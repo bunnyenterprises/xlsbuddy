@@ -50,17 +50,6 @@ export default function Pricing() {
           card: true,
           netbanking: true,
           wallet: true,
-          emi: false,
-        },
-        config: {
-          display: {
-            preferences: { show_default_blocks: true },
-            sequence: ["block.upi", "block.other"],
-            blocks: {
-              upi: { name: "Pay via UPI", instruments: [{ method: "upi" }] },
-              other: { name: "Other Methods", instruments: [{ method: "card" }, { method: "netbanking" }, { method: "wallet" }] },
-            },
-          },
         },
         handler: async (res) => {
           try {
