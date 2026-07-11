@@ -8,76 +8,65 @@ import { ArrowRight, ChartLine, BookOpen, Table, MagnifyingGlass, Lightning, Spa
 const FEATURE_IMG = "https://images.unsplash.com/photo-1770816306252-b970806ebdf1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMHdoaXRlJTIwZ3JpZCUyMGFyY2hpdGVjdHVyZXxlbnwwfHx8fDE3NzgxNjYzNjJ8MA&ixlib=rb-4.1.0&q=85";
 
 function ExcelMockup() {
-  const cols = ["", "A", "B", "C", "D", "E"];
   const rows = [
-    { n: 1, cells: ["Sales Rep", "Region", "Product", "Revenue", "Target"], header: true },
-    { n: 2, cells: ["Alice Chen", "East", "XLOOKUP", "₹48,200", "₹50,000"], formula: 2 },
-    { n: 3, cells: ["Bob Kumar", "West", "SUMIFS", "₹31,500", "₹40,000"] },
-    { n: 4, cells: ["Carol Singh", "East", "IF / IFS", "₹62,800", "₹55,000"], hi: true },
-    { n: 5, cells: ["David Rao", "North", "VLOOKUP", "₹29,100", "₹35,000"] },
-    { n: 6, cells: ["", "", "TOTAL", "=SUM(D2:D5)", "=SUM(E2:E5)"], sum: true },
+    { n: 1, a: "Sales Rep", b: "Region", c: "Revenue", d: "Status", header: true },
+    { n: 2, a: "Alice Chen", b: "East", c: "₹48,200", d: "✓ Met", green: true },
+    { n: 3, a: "Bob Kumar", b: "West", c: "₹31,500", d: "✗ Below" },
+    { n: 4, a: "Carol Singh", b: "East", c: "₹62,800", d: "✓ Met", green: true },
+    { n: 5, a: "David Rao", b: "North", c: "₹29,100", d: "✗ Below" },
+    { n: 6, a: "", b: "", c: "=SUM(C2:C5)", d: "", sum: true },
   ];
-
   return (
-    <div className="relative select-none">
-      {/* Window chrome */}
-      <div className="shadow-2xl border border-white/10 overflow-hidden text-[11px]">
-        {/* Title bar - Excel green */}
-        <div className="bg-[#1D6F42] px-3 py-2 flex items-center gap-3">
-          <div className="flex gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-white/25" />
-            <div className="w-2.5 h-2.5 rounded-full bg-white/25" />
-            <div className="w-2.5 h-2.5 rounded-full bg-white/25" />
-          </div>
-          <span className="text-white text-[11px] font-medium ml-1 opacity-90">SalesTracker.xlsx — Excel</span>
+    <div className="select-none rounded-xl overflow-hidden shadow-2xl border border-gray-200 dark:border-white/10 text-[12px]">
+      {/* Excel green title bar */}
+      <div className="bg-[#1D6F42] px-4 py-2.5 flex items-center gap-3">
+        <div className="flex gap-1.5">
+          <div className="w-3 h-3 rounded-full bg-white/20" />
+          <div className="w-3 h-3 rounded-full bg-white/20" />
+          <div className="w-3 h-3 rounded-full bg-white/20" />
         </div>
-
-        {/* Formula bar */}
-        <div className="bg-[#f0f0f0] px-2 py-1 flex items-center gap-2 border-b border-gray-300">
-          <span className="bg-white border border-gray-300 px-2 py-0.5 font-mono text-gray-700 min-w-[36px] text-center">D6</span>
-          <span className="text-gray-400 font-bold">fx</span>
-          <span className="font-mono text-[#7030A0] flex-1 truncate">=SUM(D2:D5)</span>
-        </div>
-
-        {/* Column headers */}
-        <div className="flex bg-[#e8e8e8] border-b border-gray-300">
-          {cols.map((c, i) => (
-            <div key={i} className={`font-semibold text-center text-gray-600 border-r border-gray-300 py-1 ${
-              i === 0 ? "w-7 bg-[#e0e0e0]" : i === 4 ? "flex-1 bg-[#d9e8ff] text-blue-700" : "flex-1"
-            }`}>{c}</div>
+        <span className="text-white text-xs font-medium opacity-90 ml-1">SalesTracker.xlsx — Microsoft Excel</span>
+      </div>
+      {/* Ribbon hint */}
+      <div className="bg-[#f3f2f1] border-b border-gray-300 px-4 py-1 flex gap-4 text-[10px] text-gray-500">
+        {["File","Home","Insert","Page Layout","Formulas","Data","Review"].map(t=>(
+          <span key={t} className={t==="Formulas"?"text-[#1D6F42] font-semibold":""}>{t}</span>
+        ))}
+      </div>
+      {/* Formula bar */}
+      <div className="bg-[#f3f2f1] border-b border-gray-300 px-3 py-1.5 flex items-center gap-2">
+        <span className="bg-white border border-gray-300 px-2 py-0.5 font-mono text-gray-700 text-[11px] min-w-[40px] text-center">C6</span>
+        <span className="text-gray-400 font-bold text-sm">ƒx</span>
+        <span className="font-mono text-[#7030A0] text-[11px] flex-1">=SUM(C2:C5)</span>
+      </div>
+      {/* Sheet */}
+      <div className="bg-white">
+        {/* Col headers */}
+        <div className="flex border-b border-gray-300 bg-[#f3f2f1] text-[10px] font-semibold text-gray-500">
+          <div className="w-8 shrink-0 border-r border-gray-300 py-1" />
+          {["A","B","C","D"].map((c,i)=>(
+            <div key={c} className={`flex-1 text-center py-1 border-r border-gray-300 ${i===2?"bg-[#dce6f1] text-[#17375e]":""}`}>{c}</div>
           ))}
         </div>
-
-        {/* Data rows */}
-        {rows.map((row) => (
-          <div key={row.n} className={`flex border-b border-gray-200 ${row.header ? "bg-[#1D6F42] text-white font-semibold" : "bg-white"} ${row.hi ? "bg-[#e8f4e8]" : ""} ${row.sum ? "bg-[#f0f0f0] font-semibold" : ""}`}>
-            <div className={`w-7 text-center border-r border-gray-300 py-1.5 shrink-0 ${row.header ? "bg-[#155734] text-white/80" : "bg-[#f0f0f0] text-gray-500"}`}>{row.n}</div>
-            {row.cells.map((cell, ci) => (
-              <div key={ci} className={`flex-1 px-1.5 py-1.5 border-r border-gray-200 truncate ${
-                row.formula === ci ? "text-[#7030A0] font-mono" : ""
-              } ${row.sum && ci === 3 ? "text-[#7030A0] font-mono text-blue-700" : ""
-              } ${row.sum && ci === 4 ? "text-[#7030A0] font-mono text-blue-700" : ""
-              } ${ci === 3 && !row.header && !row.sum ? "bg-[#eef4ff] text-blue-800 font-medium" : ""
-              } ${row.header ? "text-white" : ""}`}>{cell}</div>
-            ))}
+        {rows.map(row=>(
+          <div key={row.n} className={`flex border-b border-gray-200 ${row.header?"bg-[#1D6F42] text-white font-semibold":""} ${row.sum?"bg-[#f3f2f1] font-bold":""}`}>
+            <div className={`w-8 shrink-0 text-center border-r border-gray-300 py-2 text-[10px] ${row.header?"bg-[#155734] text-white/70":"text-gray-400"}`}>{row.n}</div>
+            <div className={`flex-1 px-2 py-2 border-r border-gray-200 ${row.header?"text-white":""}`}>{row.a}</div>
+            <div className={`flex-1 px-2 py-2 border-r border-gray-200 ${row.header?"text-white":""}`}>{row.b}</div>
+            <div className={`flex-1 px-2 py-2 border-r border-gray-200 font-medium ${row.sum?"text-[#7030A0] font-mono":""} ${!row.header&&!row.sum?"bg-[#dce6f1] text-[#17375e]":""} ${row.header?"text-white":""}`}>{row.c}</div>
+            <div className={`flex-1 px-2 py-2 ${row.green?"text-[#1D6F42] font-semibold":""} ${row.header?"text-white":""} ${!row.green&&!row.header&&row.d?"text-red-500":""}`}>{row.d}</div>
           </div>
         ))}
-
-        {/* Status bar */}
-        <div className="bg-[#1D6F42] px-3 py-1 flex items-center gap-6 text-white/80">
-          <span>READY</span>
-          <div className="ml-auto flex gap-4">
-            <span>SUM: ₹1,71,600</span>
-            <span>AVERAGE: ₹42,900</span>
-            <span>COUNT: 4</span>
-          </div>
+      </div>
+      {/* Status bar */}
+      <div className="bg-[#1D6F42] px-4 py-1.5 flex items-center text-white/80 text-[10px]">
+        <span>READY</span>
+        <div className="ml-auto flex gap-5">
+          <span>Average: ₹42,900</span>
+          <span>Sum: ₹1,71,600</span>
+          <span>Count: 4</span>
         </div>
       </div>
-
-      {/* Floating formula badges */}
-      <div className="absolute -top-3 -right-3 bg-[#7030A0] text-white font-mono px-3 py-1 text-xs shadow-lg">=VLOOKUP()</div>
-      <div className="absolute -bottom-3 -left-3 bg-[#1D6F42] text-white font-mono px-3 py-1 text-xs shadow-lg">=SUMIFS()</div>
-      <div className="absolute top-1/2 -right-5 bg-klein text-white font-mono px-2 py-0.5 text-xs shadow-md rotate-90 origin-center">=IF()</div>
     </div>
   );
 }
@@ -97,57 +86,124 @@ export default function Landing() {
     <div className="min-h-screen page-bg text-foreground dark:text-white">
       <Header />
 
-      {/* HERO — clean white with Excel mockup */}
-      <section className="relative overflow-hidden border-b border-foreground/15 bg-white dark:bg-[#030712]">
-        {/* Subtle spreadsheet grid pattern */}
-        <div className="absolute inset-0 opacity-[0.035] dark:opacity-[0.06]" style={{
-          backgroundImage: "linear-gradient(rgba(0,47,167,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(0,47,167,0.6) 1px, transparent 1px)",
-          backgroundSize: "44px 26px"
-        }} aria-hidden />
-        {/* Blue brand glow bottom-right */}
-        <div className="absolute right-0 bottom-0 w-[50%] h-[70%] pointer-events-none" style={{ background: "radial-gradient(ellipse at 80% 80%, rgba(37,99,235,0.10) 0%, transparent 65%)" }} aria-hidden />
-        {/* Fade left edge so text area is clean */}
-        <div className="absolute inset-0 dark:hidden pointer-events-none" style={{ background: "linear-gradient(105deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 40%, rgba(255,255,255,0.4) 70%, rgba(255,255,255,0) 100%)" }} aria-hidden />
-        <div className="absolute inset-0 hidden dark:block pointer-events-none" style={{ background: "linear-gradient(105deg, rgba(3,7,18,1) 0%, rgba(3,7,18,0.95) 40%, rgba(3,7,18,0.4) 70%, rgba(3,7,18,0) 100%)" }} aria-hidden />
+      {/* HERO — lavender gradient with floating cards */}
+      <section className="hero-bg relative overflow-hidden border-b border-foreground/15">
+        {/* Decorative floating dots */}
+        {[[120,80],[300,160],[80,300],[500,100],[420,280],[180,400],[560,340],[650,180]].map(([x,y],i)=>(
+          <div key={i} className="absolute rounded-full pointer-events-none" style={{
+            left:x, top:y,
+            width: i%3===0?10:i%3===1?6:8,
+            height: i%3===0?10:i%3===1?6:8,
+            background: i%2===0?"rgba(99,102,241,0.25)":"rgba(59,130,246,0.20)"
+          }} />
+        ))}
+        {/* dot grid bottom-left */}
+        <div className="absolute bottom-8 left-6 grid grid-cols-5 gap-2 opacity-30 pointer-events-none">
+          {Array(25).fill(0).map((_,i)=><div key={i} className="w-1.5 h-1.5 rounded-full bg-indigo-400"/>)}
+        </div>
+        {/* dot grid bottom-right */}
+        <div className="absolute bottom-8 right-6 grid grid-cols-5 gap-2 opacity-30 pointer-events-none">
+          {Array(25).fill(0).map((_,i)=><div key={i} className="w-1.5 h-1.5 rounded-full bg-emerald-400"/>)}
+        </div>
 
-        <div className="relative max-w-[1400px] mx-auto px-6 lg:px-10 pt-20 pb-28">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="relative max-w-[1400px] mx-auto px-6 lg:px-10 py-20 lg:py-28">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-            {/* Left — copy */}
-            <div className="lg:col-span-6 slide-in">
-              <div className="overline klein mb-6">EXCEL · DECODED</div>
-              <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold tracking-tight leading-tight mb-8">
-                Every Excel formula.<br/>
-                Every error.<br/>
-                <span className="klein">Solved.</span>
+            {/* LEFT — text */}
+            <div>
+              <div className="flex flex-wrap gap-2 mb-8">
+                {["=VLOOKUP()","=SUMIFS()","=XLOOKUP()","=LAMBDA()"].map(f=>(
+                  <span key={f} className="font-mono text-xs px-3 py-1.5 rounded-full bg-white/80 shadow-sm text-indigo-600 border border-indigo-100 backdrop-blur">{f}</span>
+                ))}
+              </div>
+              <p className="text-xs font-bold tracking-widest text-indigo-400 uppercase mb-3">EXCEL · DECODED</p>
+              <h1 className="text-5xl sm:text-6xl lg:text-[4rem] font-black tracking-tight leading-[1.05] mb-6 text-gray-900 dark:text-white">
+                Every Excel<br/>formula.<br/>
+                <span className="text-indigo-600 dark:text-indigo-400">Solved.</span>
               </h1>
-              <p className="text-base sm:text-lg max-w-xl text-muted-foreground mb-10 leading-relaxed">
-                Browse 60+ Excel functions with live examples. Read curated tutorials.
-                Ask our AI anything — get answers in seconds, not hours.
+              <p className="text-lg text-gray-500 dark:text-gray-400 mb-8 max-w-md leading-relaxed">
+                Browse 60+ functions with live examples, curated tutorials, and AI-powered help — all in one place.
               </p>
-              <div className="flex flex-wrap items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3 mb-10">
                 <Link to="/signup" data-testid="hero-cta-signup">
-                  <Button size="lg" className="rounded-none bg-klein hover:bg-[#002FA7]/90 text-white h-14 px-8 text-base font-bold">
+                  <Button size="lg" className="rounded-full bg-indigo-600 hover:bg-indigo-700 text-white h-13 px-8 text-base font-bold shadow-lg shadow-indigo-200">
                     Start Free <ArrowRight size={18} className="ml-2" />
                   </Button>
                 </Link>
                 <Link to="/login" data-testid="hero-cta-login">
-                  <Button size="lg" variant="outline" className="rounded-none border-foreground/30 h-14 px-8 text-base">
+                  <Button size="lg" variant="outline" className="rounded-full border-gray-300 bg-white/60 backdrop-blur h-13 px-8 text-base text-gray-700 hover:bg-white">
                     Sign in
                   </Button>
                 </Link>
               </div>
-              <div className="mt-12 flex flex-wrap gap-x-10 gap-y-3 overline text-foreground/50">
-                <span>100+ FUNCTIONS</span>
-                <span>LIVE EXCEL PREVIEW</span>
-                <span>0$ TO START</span>
-                {avg && <span>⭐ {avg} RATED</span>}
+              <div className="flex flex-wrap gap-x-8 gap-y-2 text-[11px] font-semibold tracking-widest text-gray-400 uppercase">
+                <span>100+ Functions</span>
+                <span>Live Excel Preview</span>
+                <span>Free to Start</span>
+                {avg && <span>⭐ {avg} Rated</span>}
               </div>
             </div>
 
-            {/* Right — Excel spreadsheet mockup */}
-            <div className="lg:col-span-6 hidden lg:block px-4">
-              <ExcelMockup />
+            {/* RIGHT — floating 3D-style cards */}
+            <div className="hidden lg:block relative h-[420px]">
+              {/* Line chart card — top right */}
+              <div className="absolute top-0 right-0 w-72 bg-white dark:bg-[#1a1f35] rounded-2xl shadow-xl p-5 z-20">
+                <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Functions Learned</p>
+                <p className="text-2xl font-black text-gray-900 dark:text-white mb-3">60+ <span className="text-emerald-500 text-sm font-bold">↑ Growing</span></p>
+                <svg viewBox="0 0 200 60" className="w-full h-14">
+                  <defs>
+                    <linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#6366f1" stopOpacity="0.3"/>
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,50 C30,45 40,30 70,25 C100,20 120,35 150,15 C170,5 190,8 200,5" fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round"/>
+                  <path d="M0,50 C30,45 40,30 70,25 C100,20 120,35 150,15 C170,5 190,8 200,5 L200,60 L0,60Z" fill="url(#lg1)"/>
+                  <circle cx="200" cy="5" r="4" fill="#6366f1"/>
+                </svg>
+              </div>
+
+              {/* Excel icon + users stat — bottom left */}
+              <div className="absolute bottom-8 left-0 bg-white dark:bg-[#1a1f35] rounded-2xl shadow-xl p-4 flex items-center gap-4 z-20 min-w-[200px]">
+                <div className="w-14 h-14 rounded-xl bg-[#1D6F42] flex items-center justify-center shadow-lg shrink-0">
+                  <span className="text-white font-black text-2xl">X</span>
+                </div>
+                <div>
+                  <p className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold uppercase tracking-widest">Total Users</p>
+                  <p className="text-3xl font-black text-gray-900 dark:text-white leading-none">2,847</p>
+                  <p className="text-xs text-emerald-500 font-semibold mt-0.5">↑ 12.5%</p>
+                </div>
+              </div>
+
+              {/* Donut chart card — middle */}
+              <div className="absolute top-28 left-10 bg-white dark:bg-[#1a1f35] rounded-2xl shadow-lg p-4 z-10">
+                <p className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold uppercase tracking-widest mb-2">Category Mix</p>
+                <svg viewBox="0 0 80 80" className="w-20 h-20 mx-auto">
+                  <circle cx="40" cy="40" r="28" fill="none" stroke="#e0e7ff" strokeWidth="12"/>
+                  <circle cx="40" cy="40" r="28" fill="none" stroke="#6366f1" strokeWidth="12" strokeDasharray="60 116" strokeDashoffset="-10" strokeLinecap="round"/>
+                  <circle cx="40" cy="40" r="28" fill="none" stroke="#10b981" strokeWidth="12" strokeDasharray="35 141" strokeDashoffset="-70" strokeLinecap="round"/>
+                  <circle cx="40" cy="40" r="28" fill="none" stroke="#f59e0b" strokeWidth="12" strokeDasharray="21 155" strokeDashoffset="-105" strokeLinecap="round"/>
+                  <text x="40" y="44" textAnchor="middle" className="text-[10px]" fill="#374151" fontWeight="800" fontSize="12">60+</text>
+                </svg>
+              </div>
+
+              {/* Bar chart card — bottom right */}
+              <div className="absolute bottom-0 right-4 bg-white dark:bg-[#1a1f35] rounded-2xl shadow-lg p-4 z-20">
+                <p className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold uppercase tracking-widest mb-3">Usage</p>
+                <div className="flex items-end gap-1.5 h-16">
+                  {[40,65,50,80,60,90,75].map((h,i)=>(
+                    <div key={i} className="w-5 rounded-t-sm" style={{
+                      height:`${h}%`,
+                      background: i===5?"#6366f1":i===3?"#10b981":"#c7d2fe"
+                    }}/>
+                  ))}
+                </div>
+              </div>
+
+              {/* Floating + badge */}
+              <div className="absolute top-2 left-36 w-9 h-9 rounded-full bg-indigo-500 flex items-center justify-center shadow-lg z-30">
+                <span className="text-white font-black text-lg leading-none">+</span>
+              </div>
             </div>
 
           </div>

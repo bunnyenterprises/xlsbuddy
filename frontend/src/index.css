@@ -115,6 +115,14 @@ code, pre {
     radial-gradient(ellipse 40% 40% at 30% 80%, rgba(59,130,246,0.12) 0%, transparent 100%);
 }
 
+/* Hero lavender gradient */
+.hero-bg {
+  background: linear-gradient(135deg, #eef1ff 0%, #f4f0ff 40%, #e8f0ff 100%);
+}
+.dark .hero-bg {
+  background: linear-gradient(135deg, #0d0c24 0%, #120d2e 40%, #0a1228 100%);
+}
+
 /* Attractive lift card */
 .lift {
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
