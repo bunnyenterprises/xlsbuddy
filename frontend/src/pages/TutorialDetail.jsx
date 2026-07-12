@@ -11,7 +11,10 @@ import {
   MicrosoftExcelLogo,
   YoutubeLogo,
   Play,
+  Crown,
+  Lock,
 } from "@phosphor-icons/react";
+import { Link } from "react-router-dom";
 
 function getYouTubeEmbedId(url) {
   if (!url) return null;
@@ -101,6 +104,50 @@ export default function TutorialDetail() {
   if (!tut) return (
     <div className="min-h-screen page-bg dark:text-white"><Header />
       <div className="max-w-[1100px] mx-auto px-6 lg:px-10 py-12 text-gray-950 dark:text-white">Tutorial not found.</div>
+    </div>
+  );
+
+  if (tut.gated) return (
+    <div className="min-h-screen page-bg dark:text-white">
+      <Header />
+      <main className="max-w-[860px] mx-auto px-6 lg:px-10 py-10 lg:py-14">
+        <button onClick={() => navigate(-1)} className="overline mb-6 flex items-center gap-2 text-slate-600 hover:klein dark:text-slate-400">
+          <ArrowLeft size={14} /> BACK
+        </button>
+        {tut.image_url && (
+          <div className="relative w-full h-52 lg:h-64 overflow-hidden mb-6">
+            <img src={tut.image_url} alt={tut.title} className="w-full h-full object-cover opacity-60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-amber-500 text-black text-xs font-bold px-3 py-1 rounded-full">
+              <Lock size={11} weight="fill" /> PRO
+            </div>
+          </div>
+        )}
+        <div className="flex items-center gap-2 mb-2">
+          <Badge variant="outline" className="rounded-none border-foreground/20">{tut.category}</Badge>
+          {tut.level && <Badge className="rounded-none bg-klein text-white">{tut.level}</Badge>}
+          {!tut.image_url && (
+            <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <Lock size={9} weight="fill" /> PRO
+            </span>
+          )}
+        </div>
+        <h1 className="page-title mt-3 mb-3 text-slate-950 dark:text-slate-100">{tut.title}</h1>
+        <p className="text-base text-slate-600 dark:text-slate-300 leading-7 mb-10">{tut.summary}</p>
+        <div className="border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-10 text-center">
+          <Crown size={44} weight="fill" className="text-amber-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-extrabold tracking-tight mb-2">Pro content</h2>
+          <p className="text-muted-foreground max-w-sm mx-auto mb-6">
+            This in-depth guide is only available on the Pro plan. Upgrade to read the full content, step-by-step examples, and video walkthrough.
+          </p>
+          <Link to="/pricing">
+            <button className="bg-[#002FA7] text-white font-bold px-8 py-3 hover:bg-[#002FA7]/90 transition-colors">
+              Upgrade to Pro — ₹299/mo
+            </button>
+          </Link>
+          <p className="text-xs text-muted-foreground mt-4">UPI · Cards · Netbanking · Cancel anytime</p>
+        </div>
+      </main>
     </div>
   );
 

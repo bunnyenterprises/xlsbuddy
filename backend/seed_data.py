@@ -410,6 +410,7 @@ EXCEL_FUNCTIONS = [
     },
     {
         "name": "XLOOKUP", "category": "Lookup",
+        "is_pro": True,
         "syntax": "=XLOOKUP(lookup_value, lookup_array, return_array, [if_not_found], [match_mode])",
         "description": "Modern replacement for VLOOKUP/HLOOKUP. Searches a range and returns a corresponding item.",
         "example": "=XLOOKUP(\"A102\", A:A, C:C, \"Not found\")",
@@ -1428,6 +1429,7 @@ EXCEL_FUNCTIONS = [
     # ============= DYNAMIC ARRAYS (Excel 365 / 2021+) ============= (Excel 365 / 2021+) =============
     {
         "name": "FILTER", "category": "Dynamic Arrays",
+        "is_pro": True,
         "syntax": "=FILTER(array, include, [if_empty])",
         "description": "Returns a filtered array based on a Boolean condition. Results spill automatically into neighbouring cells.",
         "example": '=FILTER(A2:C10, B2:B10="East") returns all rows where column B is "East".',
@@ -1439,6 +1441,7 @@ EXCEL_FUNCTIONS = [
     },
     {
         "name": "SORT", "category": "Dynamic Arrays",
+        "is_pro": True,
         "syntax": "=SORT(array, [sort_index], [sort_order], [by_col])",
         "description": "Sorts the contents of a range or array. Leaves the original data untouched — spills a sorted copy.",
         "example": "=SORT(A2:B10, 2, -1) sorts the range by column 2 in descending order.",
@@ -1450,6 +1453,7 @@ EXCEL_FUNCTIONS = [
     },
     {
         "name": "SORTBY", "category": "Dynamic Arrays",
+        "is_pro": True,
         "syntax": "=SORTBY(array, by_array1, [sort_order1], ...)",
         "description": "Sorts a range based on values in a corresponding column — even one outside the source range.",
         "example": "=SORTBY(A2:A10, B2:B10, 1) sorts names in A by the scores in B ascending.",
@@ -1461,6 +1465,7 @@ EXCEL_FUNCTIONS = [
     },
     {
         "name": "UNIQUE", "category": "Dynamic Arrays",
+        "is_pro": True,
         "syntax": "=UNIQUE(array, [by_col], [exactly_once])",
         "description": "Returns a list of unique values from a range, removing duplicates. Spills results automatically.",
         "example": "=UNIQUE(A2:A100) returns a deduplicated list of all values in column A.",
@@ -1472,6 +1477,7 @@ EXCEL_FUNCTIONS = [
     },
     {
         "name": "SEQUENCE", "category": "Dynamic Arrays",
+        "is_pro": True,
         "syntax": "=SEQUENCE(rows, [columns], [start], [step])",
         "description": "Generates a sequence of numbers in an array. Can create 1-D or 2-D number grids automatically.",
         "example": "=SEQUENCE(12, 1, 1, 1) creates a list 1 through 12 — useful for months.",
@@ -1484,6 +1490,7 @@ EXCEL_FUNCTIONS = [
     # ============= ADVANCED (Excel 365 Lambda & Helpers) =============
     {
         "name": "LET", "category": "Advanced",
+        "is_pro": True,
         "syntax": "=LET(name1, value1, [name2, value2, ...], calculation)",
         "description": "Assigns names to intermediate values inside a formula, making complex formulas readable and faster.",
         "example": "=LET(tax, A1*0.18, total, A1+tax, total) calculates total including tax cleanly.",
@@ -1495,6 +1502,7 @@ EXCEL_FUNCTIONS = [
     },
     {
         "name": "LAMBDA", "category": "Advanced",
+        "is_pro": True,
         "syntax": "=LAMBDA([parameter1, ...], calculation)",
         "description": "Creates a custom reusable function with your own name, parameters, and logic — no VBA needed.",
         "example": "Define: TaxTotal = LAMBDA(price, price * 1.18). Then use =TaxTotal(A1) anywhere.",
@@ -1506,6 +1514,7 @@ EXCEL_FUNCTIONS = [
     },
     {
         "name": "MAP", "category": "Advanced",
+        "is_pro": True,
         "syntax": "=MAP(array1, [array2, ...], lambda)",
         "description": "Applies a LAMBDA function to each element of an array and returns an array of results.",
         "example": "=MAP(A2:A10, LAMBDA(x, x*1.1)) multiplies each value in A2:A10 by 1.1.",
@@ -1517,6 +1526,7 @@ EXCEL_FUNCTIONS = [
     },
     {
         "name": "REDUCE", "category": "Advanced",
+        "is_pro": True,
         "syntax": "=REDUCE([initial_value], array, lambda)",
         "description": "Reduces an array to a single accumulated value by applying a LAMBDA with running accumulator.",
         "example": "=REDUCE(0, A2:A10, LAMBDA(acc, x, acc+x)) sums the array (like SUM but with custom logic).",
@@ -1528,6 +1538,7 @@ EXCEL_FUNCTIONS = [
     },
     {
         "name": "BYROW", "category": "Advanced",
+        "is_pro": True,
         "syntax": "=BYROW(array, lambda)",
         "description": "Applies a LAMBDA to each row of an array and returns an array of results, one value per row.",
         "example": "=BYROW(A2:C10, LAMBDA(row, MAX(row))) returns the max value from each row.",
@@ -1539,6 +1550,7 @@ EXCEL_FUNCTIONS = [
     },
     {
         "name": "BYCOL", "category": "Advanced",
+        "is_pro": True,
         "syntax": "=BYCOL(array, lambda)",
         "description": "Applies a LAMBDA to each column of an array and returns an array of results, one value per column.",
         "example": "=BYCOL(A2:D10, LAMBDA(col, AVERAGE(col))) returns the average of each column.",
@@ -1552,7 +1564,7 @@ EXCEL_FUNCTIONS = [
 
 # Merge Hindi explanations into each function
 EXCEL_FUNCTIONS = [
-    {**f, "simple_explanation_hindi": _HINDI_EXPLANATIONS.get(f["name"], "")}
+    {**f, "simple_explanation_hindi": _HINDI_EXPLANATIONS.get(f["name"], ""), "is_pro": f.get("is_pro", False)}
     for f in EXCEL_FUNCTIONS
 ]
 

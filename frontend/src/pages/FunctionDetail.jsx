@@ -6,7 +6,8 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, ChatCircleDots, Function as FunctionIcon, Copy, Check, BookmarkSimple, YoutubeLogo } from "@phosphor-icons/react";
+import { ArrowLeft, ChatCircleDots, Function as FunctionIcon, Copy, Check, BookmarkSimple, YoutubeLogo, Crown, Lock } from "@phosphor-icons/react";
+import { Link } from "react-router-dom";
 
 export default function FunctionDetail() {
   const { id } = useParams();
@@ -63,6 +64,39 @@ export default function FunctionDetail() {
   if (!func) return (
     <div className="min-h-screen page-bg"><Header />
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-12">Function not found.</div>
+    </div>
+  );
+
+  if (func.gated) return (
+    <div className="min-h-screen page-bg dark:text-white">
+      <Header />
+      <main className="max-w-[1100px] mx-auto px-6 lg:px-10 py-10 lg:py-14">
+        <button onClick={() => navigate(-1)} className="overline mb-6 flex items-center gap-2 hover:klein dark:text-gray-400">
+          <ArrowLeft size={14} /> BACK
+        </button>
+        <div className="flex items-center gap-3 mb-4">
+          <Crown size={24} weight="fill" className="text-amber-500" />
+          <Badge variant="outline" className="rounded-none border-foreground/20">{func.category}</Badge>
+          <span className="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+            <Lock size={10} weight="fill" /> PRO
+          </span>
+        </div>
+        <h1 className="page-title mb-3">{func.name}</h1>
+        <p className="text-lg text-muted-foreground mb-10">{func.description}</p>
+        <div className="border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-10 text-center">
+          <Crown size={44} weight="fill" className="text-amber-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-extrabold tracking-tight mb-2">Pro content</h2>
+          <p className="text-muted-foreground max-w-sm mx-auto mb-6">
+            The full syntax, examples, visual preview, and video tutorials for <strong>{func.name}</strong> are available on the Pro plan.
+          </p>
+          <Link to="/pricing">
+            <button className="bg-[#002FA7] text-white font-bold px-8 py-3 hover:bg-[#002FA7]/90 transition-colors">
+              Upgrade to Pro — ₹299/mo
+            </button>
+          </Link>
+          <p className="text-xs text-muted-foreground mt-4">UPI · Cards · Netbanking · Cancel anytime</p>
+        </div>
+      </main>
     </div>
   );
 

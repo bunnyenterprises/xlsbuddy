@@ -99,8 +99,8 @@ export default function Pricing() {
             </div>
             <ul className="space-y-3 mb-10">
               {[
-                "Browse all 65 Excel functions",
-                "All 8 in-depth tutorials",
+                "55+ core Excel functions",
+                "11 free tutorials",
                 "Visual mini-sheet examples",
                 `${limit} AI chats per day`,
                 "Search across functions & tutorials",
@@ -133,10 +133,10 @@ export default function Pricing() {
             <ul className="space-y-3 mb-10">
               {[
                 "Everything in Free",
+                "All 76 functions incl. LAMBDA, Dynamic Arrays",
+                "All 22 tutorials (incl. advanced guides)",
                 "Unlimited AI chats (Claude Sonnet 4.5)",
-                "Priority response speed",
                 "Save & organize chat history",
-                "Early access to new features",
                 "Email support",
               ].map((f) => (
                 <li key={f} className="flex items-start gap-2 text-sm">

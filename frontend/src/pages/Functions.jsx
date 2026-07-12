@@ -4,10 +4,12 @@ import { Header } from "@/components/Header";
 import { api } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MagnifyingGlass, Function as FunctionIcon } from "@phosphor-icons/react";
+import { MagnifyingGlass, Function as FunctionIcon, Lock, Crown } from "@phosphor-icons/react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Functions() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [funcs, setFuncs] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -100,27 +102,42 @@ export default function Functions() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((f) => (
+            {filtered.map((f) => {
+              const isLocked = f.is_pro && !user?.is_pro && !user?.is_admin;
+              return (
               <button
                 key={f.id}
                 onClick={() => navigate(`/functions/${f.id}`)}
                 data-testid={`func-card-${f.name.toLowerCase()}`}
-                className="text-left p-6 bg-white dark:bg-gray-900 border border-foreground/10 hover:border-[#2563eb]/40 lift relative group rounded-sm shadow-sm hover:shadow-blue-100 dark:hover:shadow-none"
+                className={`text-left p-6 bg-white dark:bg-gray-900 border lift relative group rounded-sm shadow-sm transition-all ${
+                  isLocked
+                    ? "border-amber-200 hover:border-amber-400"
+                    : "border-foreground/10 hover:border-[#2563eb]/40 hover:shadow-blue-100 dark:hover:shadow-none"
+                }`}
               >
-                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#2563eb] to-[#818cf8] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity ${isLocked ? "from-amber-400 to-yellow-300" : "from-[#2563eb] to-[#818cf8]"}`} />
+                {isLocked && (
+                  <div className="absolute top-3 right-3 flex items-center gap-1 bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    <Lock size={9} weight="fill" /> PRO
+                  </div>
+                )}
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-950 flex items-center justify-center">
-                      <FunctionIcon size={16} className="klein" weight="bold" />
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isLocked ? "bg-amber-50 dark:bg-amber-950" : "bg-blue-50 dark:bg-blue-950"}`}>
+                      {isLocked
+                        ? <Crown size={16} className="text-amber-500" weight="fill" />
+                        : <FunctionIcon size={16} className="klein" weight="bold" />
+                      }
                     </div>
                     <span className="font-extrabold text-lg tracking-tight">{f.name}</span>
                   </div>
                   <Badge variant="outline" className="rounded-full border-foreground/20 text-xs px-3">{f.category}</Badge>
                 </div>
-                <code className="block text-xs bg-gray-50 dark:bg-gray-800 border border-foreground/10 p-2 mb-3 truncate rounded">{f.syntax}</code>
+                <code className={`block text-xs border border-foreground/10 p-2 mb-3 truncate rounded ${isLocked ? "bg-amber-50/50 dark:bg-amber-950/30" : "bg-gray-50 dark:bg-gray-800"}`}>{f.syntax}</code>
                 <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{f.description}</p>
               </button>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>

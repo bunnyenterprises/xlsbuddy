@@ -16,7 +16,7 @@ load_dotenv(str(ROOT_DIR / '.env'))
 
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 
-from auth import hash_password, verify_password, create_token, get_current_user_id
+from auth import hash_password, verify_password, create_token, get_current_user_id, SESSION_COOKIE_NAME, decode_token
 from seed_data import EXCEL_FUNCTIONS, TUTORIALS
 from admin import build_admin_router, ADMIN_EMAIL, get_settings, require_admin
 
@@ -98,6 +98,18 @@ def set_auth_cookie(response: Response, token: str):
     )
 
 
+async def get_optional_user(request: Request) -> Optional[dict]:
+    """Returns the DB user doc if a valid session cookie is present, else None."""
+    token = request.cookies.get(SESSION_COOKIE_NAME)
+    if not token:
+        return None
+    try:
+        user_id = decode_token(token)
+        return await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
+    except Exception:
+        return None
+
+
 # ============= AUTH =============
 def public_user(user: dict) -> dict:
     return {
@@ -134,8 +146,33 @@ async def signup(req: SignupRequest, response: Response):
 @api_router.post("/auth/login", response_model=AuthResponse)
 async def login(req: LoginRequest, response: Response):
     user = await db.users.find_one({"email": req.email.lower()}, {"_id": 0})
-    if not user or not verify_password(req.password, user["password_hash"]):
+    if not user:
         raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    # Check lockout
+    locked_until = user.get("locked_until")
+    if locked_until:
+        locked_dt = datetime.fromisoformat(locked_until)
+        if datetime.now(timezone.utc) < locked_dt:
+            mins = max(1, int((locked_dt - datetime.now(timezone.utc)).total_seconds() / 60) + 1)
+            raise HTTPException(status_code=423, detail=f"Account locked. Try again in {mins} minute(s).")
+
+    if not verify_password(req.password, user["password_hash"]):
+        attempts = user.get("failed_login_attempts", 0) + 1
+        update: dict = {"failed_login_attempts": attempts}
+        if attempts >= 3:
+            update["locked_until"] = (datetime.now(timezone.utc) + timedelta(minutes=30)).isoformat()
+            await db.users.update_one({"email": req.email.lower()}, {"$set": update})
+            raise HTTPException(status_code=423, detail="Account locked for 30 minutes after 3 failed attempts.")
+        await db.users.update_one({"email": req.email.lower()}, {"$set": update})
+        left = 3 - attempts
+        raise HTTPException(status_code=401, detail=f"Invalid password. {left} attempt(s) left before lockout.")
+
+    # Success — clear lockout state
+    await db.users.update_one(
+        {"email": req.email.lower()},
+        {"$set": {"failed_login_attempts": 0}, "$unset": {"locked_until": ""}}
+    )
     token = create_token(user["id"])
     set_auth_cookie(response, token)
     return AuthResponse(token=token, user=public_user(user))
@@ -306,10 +343,21 @@ async def list_categories():
 
 
 @api_router.get("/functions/{func_id}")
-async def get_function(func_id: str):
+async def get_function(func_id: str, request: Request):
     func = await db.excel_functions.find_one({"id": func_id}, {"_id": 0})
     if not func:
         raise HTTPException(status_code=404, detail="Function not found")
+    if func.get("is_pro"):
+        user = await get_optional_user(request)
+        if not user or (not user.get("is_pro") and not user.get("is_admin")):
+            return {
+                "id": func["id"],
+                "name": func["name"],
+                "category": func["category"],
+                "description": func["description"],
+                "is_pro": True,
+                "gated": True,
+            }
     return func
 
 
@@ -328,10 +376,23 @@ async def list_tutorials(search: Optional[str] = None):
 
 
 @api_router.get("/tutorials/{tut_id}")
-async def get_tutorial(tut_id: str):
+async def get_tutorial(tut_id: str, request: Request):
     tut = await db.tutorials.find_one({"id": tut_id}, {"_id": 0})
     if not tut:
         raise HTTPException(status_code=404, detail="Tutorial not found")
+    if tut.get("is_pro"):
+        user = await get_optional_user(request)
+        if not user or (not user.get("is_pro") and not user.get("is_admin")):
+            return {
+                "id": tut["id"],
+                "title": tut["title"],
+                "category": tut["category"],
+                "level": tut["level"],
+                "summary": tut["summary"],
+                "image_url": tut.get("image_url"),
+                "is_pro": True,
+                "gated": True,
+            }
     return tut
 @api_router.post("/admin/tutorials")
 async def create_tutorial(payload: dict, user_id: str = Depends(get_current_user_id)):
@@ -548,6 +609,20 @@ class CSRFMiddleware(BaseHTTPMiddleware):
                 return Response("CSRF check failed", status_code=403)
         return await call_next(request)
 
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add standard security headers to every response."""
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(CSRFMiddleware)
 app.add_middleware(
     CORSMiddleware,
@@ -588,6 +663,7 @@ async def seed_db():
             or "video_url" not in sample
             or "simple_explanation" not in sample
             or not sample.get("simple_explanation_hindi")
+            or "is_pro" not in sample
         ):
             needs_reseed = True
     if needs_reseed:
