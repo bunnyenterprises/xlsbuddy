@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ArrowRight } from "@phosphor-icons/react";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 export default function Signup() {
-  const { signup } = useAuth();
+  const { signup, googleLogin } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -61,6 +62,28 @@ export default function Signup() {
             className="rounded-none w-full h-12 bg-klein hover:bg-[#002FA7]/90 text-white text-base font-bold">
             {loading ? "Creating…" : (<>Create account <ArrowRight size={18} className="ml-2" /></>)}
           </Button>
+          <div className="flex items-center gap-3 my-1">
+            <div className="flex-1 h-px bg-foreground/15" />
+            <span className="text-xs text-muted-foreground font-medium">OR</span>
+            <div className="flex-1 h-px bg-foreground/15" />
+          </div>
+
+          <GoogleSignInButton
+            label="signup_with"
+            onCredential={async (credential) => {
+              setLoading(true);
+              try {
+                await googleLogin(credential);
+                toast.success("Account created with Google!");
+                navigate("/dashboard");
+              } catch (err) {
+                toast.error(err.response?.data?.detail || "Google sign-up failed. Try again.");
+              } finally {
+                setLoading(false);
+              }
+            }}
+          />
+
           <div className="text-sm text-muted-foreground">
             Already have an account? <Link to="/login" className="klein font-bold underline" data-testid="signup-to-login">Sign in</Link>
           </div>

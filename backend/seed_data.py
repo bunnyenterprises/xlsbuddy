@@ -1303,7 +1303,7 @@ EXCEL_FUNCTIONS = [
         "video_url": _vurl("SMALL"), "video_url_hindi": _hurl("SMALL"),
     },
     {
-        "name": "PERCENTILE", "category": "Statistical", "difficulty": "Advanced",
+        "name": "PERCENTILE", "category": "Statistical", "difficulty": "Advanced", "is_pro": True,
         "syntax": "=PERCENTILE(array, k)",
         "description": "Returns the k-th percentile of values in a range.",
         "example": "=PERCENTILE(A1:A10, 0.9)",
@@ -1313,7 +1313,7 @@ EXCEL_FUNCTIONS = [
         "video_url": _vurl("PERCENTILE"), "video_url_hindi": _hurl("PERCENTILE"),
     },
     {
-        "name": "VAR", "category": "Statistical", "difficulty": "Advanced",
+        "name": "VAR", "category": "Statistical", "difficulty": "Advanced", "is_pro": True,
         "syntax": "=VAR(number1, [number2], ...)",
         "description": "Returns the variance of a sample.",
         "example": "=VAR(A1:A10)",
@@ -1387,7 +1387,7 @@ EXCEL_FUNCTIONS = [
 
     # ============= FINANCIAL EXTENDED =============
     {
-        "name": "RATE", "category": "Financial", "difficulty": "Advanced",
+        "name": "RATE", "category": "Financial", "difficulty": "Advanced", "is_pro": True,
         "syntax": "=RATE(nper, pmt, pv, [fv], [type])",
         "description": "Returns the interest rate per period of a loan or investment.",
         "example": "=RATE(60, -500, 20000) * 12",
@@ -1397,7 +1397,7 @@ EXCEL_FUNCTIONS = [
         "video_url": _vurl("RATE"), "video_url_hindi": _hurl("RATE"),
     },
     {
-        "name": "NPER", "category": "Financial", "difficulty": "Advanced",
+        "name": "NPER", "category": "Financial", "difficulty": "Advanced", "is_pro": True,
         "syntax": "=NPER(rate, pmt, pv, [fv], [type])",
         "description": "Returns the number of periods for a loan or investment.",
         "example": "=NPER(0.05/12, -500, 20000)",
@@ -1407,7 +1407,7 @@ EXCEL_FUNCTIONS = [
         "video_url": _vurl("NPER"), "video_url_hindi": _hurl("NPER"),
     },
     {
-        "name": "IPMT", "category": "Financial", "difficulty": "Advanced",
+        "name": "IPMT", "category": "Financial", "difficulty": "Advanced", "is_pro": True,
         "syntax": "=IPMT(rate, per, nper, pv, [fv], [type])",
         "description": "Returns the interest payment for a specific period of a loan.",
         "example": "=IPMT(0.05/12, 1, 60, 10000)",
@@ -1417,7 +1417,7 @@ EXCEL_FUNCTIONS = [
         "video_url": _vurl("IPMT"), "video_url_hindi": _hurl("IPMT"),
     },
     {
-        "name": "PPMT", "category": "Financial", "difficulty": "Advanced",
+        "name": "PPMT", "category": "Financial", "difficulty": "Advanced", "is_pro": True,
         "syntax": "=PPMT(rate, per, nper, pv, [fv], [type])",
         "description": "Returns the principal payment for a specific period of a loan.",
         "example": "=PPMT(0.05/12, 1, 60, 10000)",

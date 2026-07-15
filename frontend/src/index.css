@@ -169,6 +169,27 @@ code, pre {
 .markdown th { background: #f4f4f5; font-weight: 700; }
 .markdown a { color: #002FA7; text-decoration: underline; }
 .markdown strong { font-weight: 700; }
+
+/* ── Excel spreadsheet preview (inside tutorial markdown) ── */
+.xl-block { border: 1px solid #bfbfbf; overflow: hidden; margin: 1.25rem 0; font-family: 'Segoe UI', system-ui, sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.xl-bar { background: #217346; color: white; padding: 6px 14px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; letter-spacing: 0.03em; }
+.xl-icon { font-size: 14px; }
+.xl-sec-label { background: #f3f2f1; border-bottom: 1px solid #d0d0d0; padding: 5px 14px; font-size: 11px; font-weight: 700; color: #217346; text-transform: uppercase; letter-spacing: 0.1em; }
+.xl-grid-wrap { overflow-x: auto; }
+.xl-grid { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+.xl-corner { width: 36px; min-width: 36px; background: #f0efee; border: 1px solid #d0d0d0; }
+.xl-col-hdr { background: #f0efee; border: 1px solid #d0d0d0; text-align: center; padding: 3px 0; color: #5a5a5a; font-weight: 500; min-width: 90px; font-size: 11px; }
+.xl-row-num { background: #f0efee; border: 1px solid #d0d0d0; text-align: center; padding: 4px 6px; color: #5a5a5a; font-weight: 500; font-size: 11px; min-width: 36px; }
+.xl-hdr-cell { background: #dce6f1; border: 1px solid #bfc9d6; padding: 5px 12px; font-weight: 700; color: #1f3864; font-size: 12.5px; white-space: nowrap; }
+.xl-data-cell { background: white; border: 1px solid #d0d0d0; padding: 5px 12px; color: #252423; font-size: 12.5px; white-space: nowrap; }
+.xl-grid tbody tr:nth-child(even) .xl-data-cell { background: #f9fafb; }
+
+.dark .xl-bar { background: #1a5e38; }
+.dark .xl-sec-label { background: #1e1e1e; border-color: #333; color: #4ec97a; }
+.dark .xl-corner, .dark .xl-col-hdr, .dark .xl-row-num { background: #2a2a2a; border-color: #444; color: #aaa; }
+.dark .xl-hdr-cell { background: #1e2d45; border-color: #2d4060; color: #90b8e8; }
+.dark .xl-data-cell { background: #1e1e1e; border-color: #333; color: #d4d4d4; }
+.dark .xl-grid tbody tr:nth-child(even) .xl-data-cell { background: #252525; }
 .excel-bg {
   background-color: #f8fafc;
 

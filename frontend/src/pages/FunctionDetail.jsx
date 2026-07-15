@@ -6,7 +6,8 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, ChatCircleDots, Function as FunctionIcon, Copy, Check, BookmarkSimple, YoutubeLogo, Crown, Lock } from "@phosphor-icons/react";
+import { ArrowLeft, ChatCircleDots, Function as FunctionIcon, Copy, Check, BookmarkSimple, Crown, Lock } from "@phosphor-icons/react";
+import { LearningExperience } from "@/components/LearningExperience";
 
 export default function FunctionDetail() {
   const { id } = useParams();
@@ -86,7 +87,7 @@ export default function FunctionDetail() {
           <Crown size={44} weight="fill" className="text-amber-400 mx-auto mb-4" />
           <h2 className="text-2xl font-extrabold tracking-tight mb-2">Pro content</h2>
           <p className="text-muted-foreground max-w-sm mx-auto mb-6">
-            The full syntax, examples, visual preview, and video tutorials for <strong>{func.name}</strong> are available on the Pro plan.
+            The full syntax, examples, visual preview, and guided learning experience for <strong>{func.name}</strong> are available on the Pro plan.
           </p>
           <Link to="/pricing">
             <button className="bg-[#002FA7] text-white font-bold px-8 py-3 hover:bg-[#002FA7]/90 transition-colors">
@@ -100,7 +101,6 @@ export default function FunctionDetail() {
   );
 
   const hasSimpleExplanation = func.simple_explanation || func.simple_explanation_hindi;
-  const hasVideos = func.video_url || func.video_url_hindi;
 
   return (
     <div className="min-h-screen page-bg dark:text-white">
@@ -223,57 +223,7 @@ export default function FunctionDetail() {
           </section>
         )}
 
-        {/* ── Video Tutorials ── */}
-        {hasVideos && (
-          <section className="mt-10" data-testid="video-section">
-            <div className="overline klein mb-1">VIDEO TUTORIALS</div>
-            <h2 className="section-title mb-4">Watch it in Action</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {func.video_url && (
-                <a
-                  href={func.video_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 border border-foreground/15 p-5 hover:border-[#FF0000] hover:bg-red-50 dark:hover:bg-red-950/20 transition-all group"
-                  data-testid="video-english"
-                >
-                  <div className="flex-shrink-0 w-12 h-12 bg-[#FF0000] rounded-full flex items-center justify-center">
-                    <YoutubeLogo size={24} weight="fill" className="text-white" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-sm group-hover:text-[#FF0000] transition-colors">
-                      Watch in English
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      LearnSkillsDaily — {func.name} tutorial
-                    </div>
-                  </div>
-                </a>
-              )}
-              {func.video_url_hindi && (
-                <a
-                  href={func.video_url_hindi}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 border border-foreground/15 p-5 hover:border-[#FF9933] hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-all group"
-                  data-testid="video-hindi"
-                >
-                  <div className="flex-shrink-0 w-12 h-12 bg-[#FF9933] rounded-full flex items-center justify-center">
-                    <YoutubeLogo size={24} weight="fill" className="text-white" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-sm group-hover:text-[#FF9933] transition-colors">
-                      हिन्दी में देखें
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      YouTube पर {func.name} formula in hindi
-                    </div>
-                  </div>
-                </a>
-              )}
-            </div>
-          </section>
-        )}
+        <LearningExperience topic={func.name} summary={func.description} category={func.category} kind="function" />
 
         {/* ── Excel Visual Preview ── */}
         {func.visual_example && (

@@ -4,9 +4,10 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight } from "@phosphor-icons/react";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 export default function Login() {
-  const { login, user, loading: authLoading } = useAuth();
+  const { login, googleLogin, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -96,6 +97,28 @@ export default function Login() {
           >
             {loading ? "Signing in…" : (<>Sign in <ArrowRight size={18} className="ml-2" /></>)}
           </Button>
+
+          <div className="flex items-center gap-3 my-1">
+            <div className="flex-1 h-px bg-foreground/15" />
+            <span className="text-xs text-muted-foreground font-medium">OR</span>
+            <div className="flex-1 h-px bg-foreground/15" />
+          </div>
+
+          <GoogleSignInButton
+            label="signin_with"
+            onCredential={async (credential) => {
+              setError("");
+              setLoading(true);
+              try {
+                await googleLogin(credential);
+                navigate("/dashboard", { replace: true });
+              } catch (err) {
+                setError(err.response?.data?.detail || "Google sign-in failed. Try again.");
+              } finally {
+                setLoading(false);
+              }
+            }}
+          />
 
           <div className="text-sm text-muted-foreground">
             New here?{" "}

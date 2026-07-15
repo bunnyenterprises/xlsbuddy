@@ -53,6 +53,14 @@ class CreateSessionRequest(BaseModel):
 class FormulaRequest(BaseModel):
     description: str
 
+class LearningRequest(BaseModel):
+    topic: str
+    summary: Optional[str] = ""
+    kind: str = "function"
+
+class GoogleAuthRequest(BaseModel):
+    credential: str
+
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 
@@ -62,6 +70,7 @@ class ResetPasswordRequest(BaseModel):
 
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://www.xlsbuddy.com')
 AUTH_COOKIE_NAME = os.environ.get('AUTH_COOKIE_NAME', 'xlsbuddy_session')
 AUTH_COOKIE_SECURE = os.environ.get('AUTH_COOKIE_SECURE', 'true').lower() == 'true'
@@ -189,6 +198,57 @@ async def logout(response: Response):
         samesite=AUTH_COOKIE_SAMESITE,
     )
     return {"message": "Logged out"}
+
+
+@api_router.post("/auth/google", response_model=AuthResponse)
+async def google_auth(req: GoogleAuthRequest, response: Response):
+    """Verify a Google Identity Services credential (ID token) and log the user in."""
+    from google.oauth2 import id_token
+    from google.auth.transport import requests as google_requests
+
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=503, detail="Google Sign-In is not configured on this server.")
+
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            req.credential,
+            google_requests.Request(),
+            GOOGLE_CLIENT_ID,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail="Invalid Google token. Please try again.")
+
+    email = idinfo.get("email", "").lower().strip()
+    name = idinfo.get("name", "") or idinfo.get("given_name", "User")
+    google_id = idinfo.get("sub", "")
+
+    if not email:
+        raise HTTPException(status_code=400, detail="Could not read email from Google account.")
+
+    user = await db.users.find_one({"email": email}, {"_id": 0})
+    if not user:
+        user_id = str(uuid.uuid4())
+        new_user = {
+            "id": user_id,
+            "email": email,
+            "name": name,
+            "password_hash": "",
+            "is_admin": False,
+            "is_pro": False,
+            "google_id": google_id,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "failed_login_attempts": 0,
+        }
+        await db.users.insert_one({**new_user, "_id": user_id})
+        user = new_user
+    else:
+        # Link google_id to existing account on first Google login
+        if not user.get("google_id"):
+            await db.users.update_one({"email": email}, {"$set": {"google_id": google_id}})
+
+    token = create_token(user["id"])
+    set_auth_cookie(response, token)
+    return AuthResponse(token=token, user=public_user(user))
 
 
 def _send_reset_email(to_email: str, name: str, reset_url: str):
@@ -579,6 +639,106 @@ Respond in this exact JSON format (no extra text):
         raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
 
 
+# ============= LEARNING LESSON GENERATOR =============
+@api_router.post("/learning/generate")
+async def generate_lesson(req: LearningRequest, request: Request):
+    from groq import AsyncGroq
+    import json, re
+
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=503, detail="AI not configured")
+
+    topic = req.topic.strip()
+    if not topic:
+        raise HTTPException(status_code=400, detail="Topic required")
+
+    prompt = f"""You are an Excel learning coach. Generate a structured interactive lesson for "{topic}".
+Context: {req.summary or ""}
+Type: {req.kind} (function or tutorial)
+
+Return ONLY valid JSON — no markdown, no explanation, nothing else.
+
+{{
+  "explanation": "2-3 sentences explaining what {topic} does in plain, simple English. No jargon.",
+  "best_for": ["use case 1 (under 5 words)", "use case 2 (under 5 words)", "use case 3 (under 5 words)"],
+  "flow_steps": ["Step 1 name", "Step 2 name", "Step 3 name", "Step 4 name"],
+  "flow_description": "One sentence describing how the process works from start to result.",
+  "steps": [
+    {{
+      "title": "Short action title (3-5 words)",
+      "instruction": "What to do — plain English, 1-2 sentences. Tell the user exactly what to click or type.",
+      "ai_says": "Encouraging coach line — acknowledge what they just did and tell them why it matters (1 sentence).",
+      "formula_so_far": "=FUNC_NAME(firstArg,"
+    }},
+    {{
+      "title": "Next step title",
+      "instruction": "Next action description.",
+      "ai_says": "Coaching feedback line.",
+      "formula_so_far": "=FUNC_NAME(firstArg, secondArg,"
+    }},
+    {{
+      "title": "Next step title",
+      "instruction": "Next action description.",
+      "ai_says": "Coaching feedback line.",
+      "formula_so_far": "=FUNC_NAME(firstArg, secondArg, thirdArg,"
+    }},
+    {{
+      "title": "Final step",
+      "instruction": "Press Enter and see the result.",
+      "ai_says": "Great job! The formula is complete and the result is showing.",
+      "formula_so_far": "=FUNC_NAME(firstArg, secondArg, thirdArg, FALSE)"
+    }}
+  ],
+  "practice_prompt": "One sentence challenge — give the user a concrete task to solve using {topic}.",
+  "practice_hint": "One sentence describing what the correct formula/approach looks like.",
+  "quiz_question": "A multiple-choice question about WHEN or WHY to use {topic}.",
+  "quiz_options": {{"A": "option text", "B": "option text", "C": "option text", "D": "option text"}},
+  "quiz_correct": "B",
+  "quiz_explanation": "Why that answer is correct (1-2 sentences).",
+  "mistakes": [
+    {{"error": "Error name (e.g. #N/A)", "reason": "Why this happens (1 sentence)", "fix": "How to fix it (1 sentence)"}},
+    {{"error": "Second error or mistake", "reason": "Why this happens", "fix": "How to fix it"}}
+  ],
+  "cheat_sheet": {{
+    "purpose": "One-line purpose statement",
+    "tip": "The single most important tip for using {topic} correctly",
+    "shortcut": "Any keyboard shortcut or workflow tip"
+  }},
+  "business_example": {{
+    "domain": "HR or Sales or Accounts or Inventory or Freelancer",
+    "task": "Specific real task name (e.g. 'Monthly payroll')",
+    "description": "One sentence showing how {topic} solves a real business problem in that domain."
+  }}
+}}"""
+
+    try:
+        groq_client = AsyncGroq(api_key=GROQ_API_KEY)
+        completion = await groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are an Excel teaching expert. Always respond with valid JSON only. No markdown fences, no extra text."},
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=1400,
+            temperature=0.3,
+        )
+        raw = completion.choices[0].message.content.strip()
+        # Strip markdown fences if model adds them
+        if raw.startswith("```"):
+            raw = re.sub(r'^```[a-z]*\n?', '', raw)
+            raw = re.sub(r'\n?```$', '', raw.strip())
+        match = re.search(r'\{.*\}', raw, re.DOTALL)
+        if not match:
+            raise ValueError("No JSON in response")
+        return json.loads(match.group())
+    except json.JSONDecodeError as e:
+        logging.exception("Lesson JSON parse error")
+        raise HTTPException(status_code=500, detail="Could not parse lesson content")
+    except Exception as e:
+        logging.exception("Lesson generation error")
+        raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
+
+
 # ============= ROOT =============
 @api_router.get("/")
 async def root():
@@ -671,6 +831,14 @@ async def seed_db():
         docs = [{**f, "id": str(uuid.uuid4())} for f in EXCEL_FUNCTIONS]
         await db.excel_functions.insert_many(docs)
         logger.info(f"Seeded {len(docs)} Excel functions")
+    else:
+        # Patch: ensure all Advanced-difficulty functions are gated as Pro
+        result = await db.excel_functions.update_many(
+            {"difficulty": "Advanced", "is_pro": {"$ne": True}},
+            {"$set": {"is_pro": True}}
+        )
+        if result.modified_count:
+            logger.info(f"Patched {result.modified_count} Advanced functions to is_pro=True")
     # Re-seed tutorials if is_pro field is missing
     needs_tutorial_reseed = await db.tutorials.count_documents({}) == 0
     if not needs_tutorial_reseed:

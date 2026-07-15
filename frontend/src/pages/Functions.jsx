@@ -54,7 +54,6 @@ export default function Functions() {
         <div className="relative mb-10 rounded-none overflow-hidden border border-foreground/10 bg-gradient-to-br from-[#002FA7] to-[#1a3fcf] p-8 lg:p-12 text-white">
           <div className="absolute inset-0 opacity-10" style={{backgroundImage:"radial-gradient(circle at 70% 50%, #fff 0%, transparent 60%)"}} />
           <div className="relative">
-            <div className="overline mb-3 text-white/70">FUNCTIONS LIBRARY</div>
             <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight mb-2">All Excel functions.</h1>
             <p className="text-white/80 max-w-2xl">
               {funcs.length > 0 ? `${funcs.length} formulas` : "100+"} · Browse by category, search by name or use case.

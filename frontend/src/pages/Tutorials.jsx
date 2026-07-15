@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { api } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MagnifyingGlass, BookOpen, ArrowRight, MicrosoftExcelLogo, YoutubeLogo, Lock } from "@phosphor-icons/react";
+import { MagnifyingGlass, BookOpen, ArrowRight, MicrosoftExcelLogo, Lock } from "@phosphor-icons/react";
 
 const CATEGORY_COLORS = {
   "Lookup": "from-blue-600 to-blue-800",
@@ -45,9 +45,9 @@ export default function Tutorials() {
               <div className="overline mb-3 text-white/70 flex items-center gap-2">
                 <MicrosoftExcelLogo size={15} weight="fill" /> TUTORIALS
               </div>
-              <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight mb-2">Excel, level by level.</h1>
+              <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight mb-2">Learn Excel with guided AI lessons.</h1>
               <p className="text-white/80 max-w-2xl">
-                {filtered.length > 0 ? `${filtered.length} guides` : "26 guides"} · Formulas, pivot tables, Power BI, VBA, and more.
+                {filtered.length > 0 ? `${filtered.length} guided lessons` : "26 guided lessons"} · Short explanations, practice, quizzes, and business examples.
               </p>
             </div>
             <div className="relative max-w-sm w-full">
@@ -87,11 +87,9 @@ export default function Tutorials() {
                       }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                    {t.video_url && (
-                      <div className="absolute top-3 right-3 bg-red-600 text-white rounded-full p-1.5">
-                        <YoutubeLogo size={14} weight="fill" />
-                      </div>
-                    )}
+                    <div className="absolute top-3 right-3 rounded-full bg-emerald-600 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+                      AI LESSON
+                    </div>
                     {t.is_pro && (
                       <div className="absolute top-3 left-3 bg-amber-500 text-black text-xs font-bold px-2 py-0.5 flex items-center gap-1">
                         <Lock size={10} weight="fill" /> PRO
@@ -102,11 +100,9 @@ export default function Tutorials() {
                   <div className={`h-40 bg-gradient-to-br ${CATEGORY_COLORS[t.category] || "from-blue-600 to-blue-800"} flex items-center justify-center relative overflow-hidden`}>
                     <span className="text-white/20 text-7xl font-black">{t.category?.[0] || "E"}</span>
                     <BookOpen size={36} weight="duotone" className="absolute text-white/80" />
-                    {t.video_url && (
-                      <div className="absolute top-3 right-3 bg-red-600 text-white rounded-full p-1.5">
-                        <YoutubeLogo size={14} weight="fill" />
-                      </div>
-                    )}
+                    <div className="absolute top-3 right-3 rounded-full bg-emerald-600 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+                      AI LESSON
+                    </div>
                     {t.is_pro && (
                       <div className="absolute top-3 left-3 bg-amber-500 text-black text-xs font-bold px-2 py-0.5 flex items-center gap-1">
                         <Lock size={10} weight="fill" /> PRO

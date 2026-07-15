@@ -9,53 +9,137 @@ import {
   ArrowLeft,
   BookmarkSimple,
   MicrosoftExcelLogo,
-  YoutubeLogo,
-  Play,
   Crown,
   Lock,
 } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
-
-function getYouTubeEmbedId(url) {
-  if (!url) return null;
-  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
-  return m ? m[1] : null;
-}
+import { LearningExperience } from "@/components/LearningExperience";
 
 function escapeHtml(str) {
-  return str.replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+  return String(str).replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+}
+
+function looksLikeSpreadsheet(code) {
+  const lines = code.split("\n").filter(l => l.trim());
+  const pipeLines = lines.filter(l => l.includes("|") && !l.match(/^[-|:\s]+$/));
+  return pipeLines.length >= 2;
+}
+
+function renderSpreadsheetBlock(raw) {
+  const lines = raw.split("\n");
+  const sections = [];
+  let cur = { label: null, rows: [] };
+
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t) continue;
+    if (t.match(/^[-|:\s]+$/)) continue; // separator
+    if (t.startsWith("//")) {
+      if (cur.rows.length) { sections.push({ ...cur }); cur = { label: null, rows: [] }; }
+      if (!cur.label) cur.label = t.replace(/^\/\/\s*/, "");
+      else cur.label += " · " + t.replace(/^\/\/\s*/, "");
+      continue;
+    }
+    if (t.includes("|")) {
+      const cells = t.split("|").map(c => c.trim());
+      const filtered = (cells[0] === "" ? cells.slice(1) : cells);
+      const cleaned = (filtered[filtered.length - 1] === "" ? filtered.slice(0, -1) : filtered);
+      if (cleaned.length) cur.rows.push(cleaned);
+    }
+  }
+  if (cur.rows.length || cur.label) sections.push(cur);
+
+  const colLetter = i => String.fromCharCode(65 + i);
+
+  let html = `<div class="xl-block">`;
+  html += `<div class="xl-bar"><span class="xl-icon">📗</span>Excel Preview</div>`;
+
+  for (const sec of sections) {
+    if (sec.label) html += `<div class="xl-sec-label">${escapeHtml(sec.label)}</div>`;
+    if (!sec.rows.length) continue;
+    const headers = sec.rows[0];
+    const body = sec.rows.slice(1);
+    const numCols = Math.max(...sec.rows.map(r => r.length));
+
+    html += `<div class="xl-grid-wrap"><table class="xl-grid">`;
+    // Column letter headers
+    html += `<thead><tr><th class="xl-corner"></th>`;
+    for (let i = 0; i < numCols; i++) html += `<th class="xl-col-hdr">${colLetter(i)}</th>`;
+    html += `</tr></thead><tbody>`;
+    // Header row (row 1) — styled as bold field names
+    html += `<tr><td class="xl-row-num">1</td>`;
+    headers.forEach(c => { html += `<td class="xl-hdr-cell">${escapeHtml(c)}</td>`; });
+    for (let i = headers.length; i < numCols; i++) html += `<td class="xl-data-cell"></td>`;
+    html += `</tr>`;
+    // Data rows
+    body.forEach((row, i) => {
+      html += `<tr><td class="xl-row-num">${i + 2}</td>`;
+      row.forEach(c => { html += `<td class="xl-data-cell">${escapeHtml(c)}</td>`; });
+      for (let j = row.length; j < numCols; j++) html += `<td class="xl-data-cell"></td>`;
+      html += `</tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+
+  html += `</div>`;
+  return html;
 }
 
 function renderMarkdown(md) {
   if (!md) return "";
-  let html = escapeHtml(md);
-  html = html.replace(/```([a-z]*)\n([\s\S]*?)```/g, (_, lang, code) =>
-    `<pre><code class="lang-${escapeHtml(lang)}">${escapeHtml(code)}</code></pre>`);
-  html = html.replace(/^### (.*)$/gm, (_, inner) => `<h3>${escapeHtml(inner)}</h3>`);
-  html = html.replace(/^## (.*)$/gm, (_, inner) => `<h2>${escapeHtml(inner)}</h2>`);
-  html = html.replace(/\*\*([^*]+)\*\*/g, (_, inner) => `<strong>${escapeHtml(inner)}</strong>`);
-  html = html.replace(/`([^`]+)`/g, (_, inner) => `<code>${escapeHtml(inner)}</code>`);
+
+  // Process code blocks first (before global escaping so we can inspect raw content)
+  const blocks = [];
+  const placeholder = "\x00BLOCK\x00";
+  const withPlaceholders = md.replace(/```([a-z]*)\n([\s\S]*?)```/g, (_, lang, code) => {
+    let rendered;
+    if (looksLikeSpreadsheet(code)) {
+      rendered = renderSpreadsheetBlock(code);
+    } else {
+      rendered = `<pre><code class="lang-${escapeHtml(lang)}">${escapeHtml(code)}</code></pre>`;
+    }
+    blocks.push(rendered);
+    return placeholder + (blocks.length - 1) + placeholder;
+  });
+
+  let html = escapeHtml(withPlaceholders);
+
+  html = html.replace(/^### (.*)$/gm, (_, inner) => `<h3>${inner}</h3>`);
+  html = html.replace(/^## (.*)$/gm, (_, inner) => `<h2>${inner}</h2>`);
+  html = html.replace(/\*\*([^*]+)\*\*/g, (_, inner) => `<strong>${inner}</strong>`);
+  html = html.replace(/`([^`]+)`/g, (_, inner) => `<code>${inner}</code>`);
+
+  // Markdown pipe tables
   html = html.replace(/((?:^\|.*\|\s*\n)+)/gm, (block) => {
     const rows = block.trim().split("\n");
-    if (rows.length < 2) return escapeHtml(block);
-    const headerCells = rows[0].split("|").slice(1, -1).map(c => `<th>${escapeHtml(c.trim())}</th>`).join("");
+    if (rows.length < 2) return block;
+    const headerCells = rows[0].split("|").slice(1, -1).map(c => `<th>${c.trim()}</th>`).join("");
     const bodyRows = rows.slice(2).map(r => {
-      const cells = r.split("|").slice(1, -1).map(c => `<td>${escapeHtml(c.trim())}</td>`).join("");
+      const cells = r.split("|").slice(1, -1).map(c => `<td>${c.trim()}</td>`).join("");
       return `<tr>${cells}</tr>`;
     }).join("");
     return `<table><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table>`;
   });
+
   html = html.replace(/(?:^- .*(?:\n|$))+/gm, (block) => {
-    const items = block.trim().split("\n").map(l => `<li>${escapeHtml(l.replace(/^- /, "").trim())}</li>`).join("");
+    const items = block.trim().split("\n").map(l => `<li>${l.replace(/^- /, "").trim()}</li>`).join("");
     return `<ul>${items}</ul>`;
   });
   html = html.replace(/(?:^\d+\. .*(?:\n|$))+/gm, (block) => {
-    const items = block.trim().split("\n").map(l => `<li>${escapeHtml(l.replace(/^\d+\. /, "").trim())}</li>`).join("");
+    const items = block.trim().split("\n").map(l => `<li>${l.replace(/^\d+\. /, "").trim()}</li>`).join("");
     return `<ol>${items}</ol>`;
   });
+
   html = html.split(/\n{2,}/).map(chunk =>
-    /^<(h\d|ul|ol|pre|table)/.test(chunk.trim()) ? chunk : `<p>${chunk.replace(/\n/g, " ")}</p>`
+    /^(&lt;|\x00|<(h\d|ul|ol|pre|table))/.test(chunk.trim()) ? chunk : `<p>${chunk.replace(/\n/g, " ")}</p>`
   ).join("\n");
+
+  // Restore code/spreadsheet blocks (unescaped)
+  html = html.replace(
+    new RegExp(escapeHtml(placeholder) + "(\\d+)" + escapeHtml(placeholder), "g"),
+    (_, i) => blocks[parseInt(i)]
+  );
+
   return html;
 }
 
@@ -138,7 +222,7 @@ export default function TutorialDetail() {
           <Crown size={44} weight="fill" className="text-amber-400 mx-auto mb-4" />
           <h2 className="text-2xl font-extrabold tracking-tight mb-2">Pro content</h2>
           <p className="text-muted-foreground max-w-sm mx-auto mb-6">
-            This in-depth guide is only available on the Pro plan. Upgrade to read the full content, step-by-step examples, and video walkthrough.
+            This in-depth guide is only available on the Pro plan. Upgrade to read the full content, step-by-step examples, and the guided lesson experience.
           </p>
           <Link to="/pricing">
             <button className="bg-[#002FA7] text-white font-bold px-8 py-3 hover:bg-[#002FA7]/90 transition-colors">
@@ -150,8 +234,6 @@ export default function TutorialDetail() {
       </main>
     </div>
   );
-
-  const embedId = getYouTubeEmbedId(tut.video_url);
 
   return (
     <div className="min-h-screen page-bg dark:text-white">
@@ -228,76 +310,9 @@ export default function TutorialDetail() {
             <h1 className="max-w-3xl page-title mb-4 text-slate-950 dark:text-slate-100">{tut.title}</h1>
             <p className="text-base lg:text-[1.0625rem] text-slate-600 dark:text-slate-300 leading-7 mb-6 border-l-2 border-blue-600 pl-4">{tut.summary}</p>
 
-            {/* YouTube video embed */}
-            {embedId && (
-              <div className="mb-8">
-                {!videoPlaying ? (
-                  <button
-                    onClick={() => setVideoPlaying(true)}
-                    className="relative w-full aspect-video bg-black overflow-hidden group border border-foreground/10"
-                    style={{ display: "block" }}
-                  >
-                    <img
-                      src={`https://img.youtube.com/vi/${embedId}/maxresdefault.jpg`}
-                      alt="Video thumbnail"
-                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
-                        <Play size={28} weight="fill" className="text-white ml-1" />
-                      </div>
-                    </div>
-                    <div className="absolute bottom-3 left-3 flex items-center gap-2 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
-                      <YoutubeLogo size={16} weight="fill" className="text-red-500" />
-                      Watch video tutorial
-                    </div>
-                  </button>
-                ) : (
-                  <div className="w-full aspect-video border border-foreground/10">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${embedId}?autoplay=1`}
-                      title="Tutorial video"
-                      className="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                )}
-                {/* YouTube credit attribution */}
-                <div className="flex items-center justify-between gap-3 mt-2 px-3 py-2.5 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30">
-                  <div className="flex items-center gap-2 text-sm text-red-700 dark:text-red-400">
-                    <YoutubeLogo size={18} weight="fill" className="text-red-600 shrink-0" />
-                    <span>Video credit: Original creator on YouTube. All rights belong to the respective creator.</span>
-                  </div>
-                  <a
-                    href={tut.video_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 text-xs font-bold text-red-600 dark:text-red-400 hover:underline whitespace-nowrap"
-                  >
-                    View on YouTube ↗
-                  </a>
-                </div>
-              </div>
-            )}
+            <LearningExperience topic={tut.title} summary={tut.summary} category={tut.category} kind="tutorial" />
 
-            {/* Video search link (no embed ID but has video_url) */}
-            {tut.video_url && !embedId && (
-              <a
-                href={tut.video_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 mb-8 p-4 border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/40 transition-colors"
-              >
-                <YoutubeLogo size={24} weight="fill" className="text-red-600 shrink-0" />
-                <div>
-                  <div className="font-bold text-sm">Watch video tutorials on YouTube</div>
-                  <div className="text-xs opacity-70">Opens in a new tab</div>
-                </div>
-              </a>
-            )}
-
-            <div className="markdown" dangerouslySetInnerHTML={{ __html: renderMarkdown(tut.content) }} />
+            <div className="markdown mt-8" dangerouslySetInnerHTML={{ __html: renderMarkdown(tut.content) }} />
           </div>
         </article>
       </main>
