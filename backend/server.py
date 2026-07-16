@@ -47,6 +47,10 @@ class ChatMessageRequest(BaseModel):
     content: str
     session_id: Optional[str] = None
 
+class ExcelAnalyzeRequest(BaseModel):
+    question: str
+    context: str
+
 class CreateSessionRequest(BaseModel):
     title: Optional[str] = "New Conversation"
 
@@ -596,6 +600,42 @@ async def send_message(req: ChatMessageRequest, user_id: str = Depends(get_curre
     await db.chat_sessions.update_one({"id": session_id}, {"$set": {"updated_at": ai_msg["created_at"]}})
 
     return {"session_id": session_id, "user_message": {k: v for k, v in user_msg.items()}, "assistant_message": {k: v for k, v in ai_msg.items()}}
+
+
+# ============= EXCEL ANALYZER =============
+@api_router.post("/excel/analyze")
+async def excel_analyze(req: ExcelAnalyzeRequest, user_id: str = Depends(get_current_user_id)):
+    from groq import AsyncGroq
+
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=503, detail="AI service not configured.")
+
+    system = f"""You are an Excel data analyst AI. Analyze the user's spreadsheet data and answer questions clearly.
+
+UPLOADED SPREADSHEET DATA:
+{req.context}
+
+Rules:
+- Answer based on the actual data provided above
+- If asked for formulas, provide Excel formulas using the column names shown
+- If asked for totals/averages/counts, calculate from the data rows
+- Keep answers concise and actionable
+- If only the first 60 rows were provided, mention that when relevant"""
+
+    try:
+        groq_client = AsyncGroq(api_key=GROQ_API_KEY)
+        completion = await groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": req.question},
+            ],
+            max_tokens=1024,
+        )
+        return {"reply": completion.choices[0].message.content}
+    except Exception as e:
+        logging.exception("Groq API error in excel analyze")
+        raise HTTPException(status_code=500, detail=f"AI error: {str(e)}")
 
 
 # ============= FORMULA GENERATOR =============

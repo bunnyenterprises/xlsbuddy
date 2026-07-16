@@ -24,6 +24,7 @@ import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Terms from "@/pages/Terms";
+import ExcelAnalyzer from "@/pages/ExcelAnalyzer";
 
 const HomeGuard = () => {
   const { user, loading } = useAuth();
@@ -54,6 +55,7 @@ function App() {
               <Route path="/formula-generator" element={<ProtectedRoute><FormulaGenerator /></ProtectedRoute>} />
               <Route path="/bookmarks" element={<ProtectedRoute><Bookmarks /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+              <Route path="/excel-analyzer" element={<ProtectedRoute><ExcelAnalyzer /></ProtectedRoute>} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   GridFour, ChartLine, BookOpen, ChatCircleDots, SignOut, User as UserIcon,
-  List, X, Crown, Star, Tag, Shield, BookmarkSimple, Moon, Sun, Sparkle,
+  List, X, Crown, Star, Tag, Shield, BookmarkSimple, Moon, Sun, Sparkle, FileXls,
 } from "@phosphor-icons/react";
 
 export const Header = () => {
@@ -25,6 +25,7 @@ export const Header = () => {
     { to: "/tutorials", label: "Tutorials", icon: BookOpen },
     { to: "/chat", label: "AI Chat", icon: ChatCircleDots },
     { to: "/formula-generator", label: "Formula AI", icon: Sparkle },
+    { to: "/excel-analyzer", label: "Excel AI", icon: FileXls },
     { to: "/pricing", label: "Pricing", icon: Tag },
   ];
 
