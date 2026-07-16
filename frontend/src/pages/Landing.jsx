@@ -355,10 +355,11 @@ export default function Landing() {
       <footer className="bg-black text-white border-t border-white/10 py-10">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-klein flex items-center justify-center">
-              <span className="text-white font-black text-xs">X</span>
-            </div>
-            <span className="font-bold tracking-tight">XLSBUDDY</span>
+            <svg width="24" height="24" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="30" height="30" fill="#002FA7"/>
+              <text x="15" y="21" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold" fontFamily="Georgia, 'Times New Roman', serif" fontStyle="italic">ƒx</text>
+            </svg>
+            <span className="font-bold tracking-tight whitespace-nowrap">XLSBUDDY</span>
           </div>
           <div className="overline text-white/50">© 2026 · Built with rigor</div>
         </div>

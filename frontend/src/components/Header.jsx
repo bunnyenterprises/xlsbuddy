@@ -31,11 +31,12 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-40 bg-white dark:bg-gray-950 dark:border-white/10 border-b border-foreground/15" data-testid="app-header">
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
-        <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group" data-testid="brand-link">
-          <div className="w-7 h-7 bg-klein flex items-center justify-center">
-            <span className="text-white font-black text-sm">X</span>
-          </div>
-          <span className="font-black tracking-tight text-lg dark:text-white">XLS<span className="klein">Buddy</span></span>
+        <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 shrink-0 group" data-testid="brand-link">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="30" height="30" fill="#002FA7"/>
+            <text x="15" y="21" textAnchor="middle" fill="white" fontSize="13" fontWeight="bold" fontFamily="Georgia, 'Times New Roman', serif" fontStyle="italic">ƒx</text>
+          </svg>
+          <span className="font-black tracking-tight text-lg dark:text-white whitespace-nowrap">XLS<span className="klein">Buddy</span></span>
         </Link>
 
         {user && (

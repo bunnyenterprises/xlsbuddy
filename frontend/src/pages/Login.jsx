@@ -39,10 +39,11 @@ export default function Login() {
       {/* Left blue panel — desktop only */}
       <div className="bg-klein text-white p-12 lg:p-16 hidden lg:flex flex-col justify-between">
         <Link to="/" className="flex items-center gap-2" data-testid="login-brand">
-          <div className="w-7 h-7 bg-white flex items-center justify-center">
-            <span className="klein font-black text-sm">X</span>
-          </div>
-          <span className="font-black tracking-tight">XLSBUDDY</span>
+          <svg width="28" height="28" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="30" height="30" fill="white"/>
+            <text x="15" y="21" textAnchor="middle" fill="#002FA7" fontSize="13" fontWeight="bold" fontFamily="Georgia, 'Times New Roman', serif" fontStyle="italic">ƒx</text>
+          </svg>
+          <span className="font-black tracking-tight whitespace-nowrap">XLSBUDDY</span>
         </Link>
         <div>
           <div className="overline mb-6 text-white/70">WELCOME BACK</div>
