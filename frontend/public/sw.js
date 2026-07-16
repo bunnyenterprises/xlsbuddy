@@ -1,4 +1,4 @@
-const CACHE = "xlsbuddy-v2";
+const CACHE = "xlsbuddy-v3";
 const SHELL = ["/", "/index.html", "/manifest.json"];
 
 self.addEventListener("install", (e) => {

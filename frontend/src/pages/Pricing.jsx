@@ -12,6 +12,8 @@ export default function Pricing() {
   const { user } = useAuth();
   const [config, setConfig] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [checkoutReady, setCheckoutReady] = useState(Boolean(window.Razorpay));
+  const razorpayKey = process.env.REACT_APP_RAZORPAY_KEY_ID || config?.razorpay_key_id;
 
   useEffect(() => {
     api.get("/config").then((r) => setConfig(r.data));
@@ -19,12 +21,22 @@ export default function Pricing() {
 
   // Load Razorpay checkout script
   useEffect(() => {
-    if (document.getElementById("razorpay-script")) return;
+    if (window.Razorpay) {
+      setCheckoutReady(true);
+      return undefined;
+    }
+    if (document.getElementById("razorpay-script")) return undefined;
     const s = document.createElement("script");
     s.id = "razorpay-script";
     s.src = "https://checkout.razorpay.com/v1/checkout.js";
     s.async = true;
+    s.onload = () => setCheckoutReady(true);
+    s.onerror = () => toast.error("Could not load secure checkout. Please try again.");
     document.body.appendChild(s);
+    return () => {
+      s.onload = null;
+      s.onerror = null;
+    };
   }, []);
 
   const handleUpgrade = async () => {
@@ -33,11 +45,19 @@ export default function Pricing() {
       toast.error("Payments not yet configured by admin. Please try later.");
       return;
     }
+    if (!window.Razorpay) {
+      toast.error("Secure checkout is still loading. Please try again.");
+      return;
+    }
+    if (!razorpayKey) {
+      toast.error("Payments are not configured. Please try again later.");
+      return;
+    }
     setLoading(true);
     try {
       const { data } = await api.post("/payments/create-order", { plan: "pro_monthly" });
       const options = {
-        key: data.key_id,
+        key: razorpayKey,
         amount: data.amount,
         currency: data.currency,
         name: "XLSBuddy Pro",
@@ -62,17 +82,21 @@ export default function Pricing() {
             setTimeout(() => window.location.reload(), 1200);
           } catch (e) {
             toast.error(e.response?.data?.detail || "Verification failed");
+          } finally {
+            setLoading(false);
           }
         },
         modal: { ondismiss: () => setLoading(false) },
       };
       // eslint-disable-next-line no-undef
       const rz = new window.Razorpay(options);
+      rz.on("payment.failed", (response) => {
+        toast.error(response.error?.description || "Payment failed. Please try again.");
+        setLoading(false);
+      });
       rz.open();
     } catch (e) {
       toast.error(e.response?.data?.detail || "Could not start payment");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -167,7 +191,7 @@ export default function Pricing() {
             ) : (
               <Button
                 onClick={handleUpgrade}
-                disabled={loading || !config?.razorpay_configured}
+                disabled={loading || !checkoutReady || !config?.razorpay_configured}
                 data-testid="upgrade-button"
                 className="rounded-none w-full h-12 bg-white text-black hover:bg-white/90 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
               >

@@ -19,8 +19,6 @@ ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "rajel.chavan6@gmail.com").lower()
 
 # ============= MODELS =============
 class SettingsUpdate(BaseModel):
-    razorpay_key_id: Optional[str] = None
-    razorpay_key_secret: Optional[str] = None
     google_review_url: Optional[str] = None
     pro_price_inr: Optional[int] = None
     free_daily_chat_limit: Optional[int] = None
@@ -33,9 +31,9 @@ class CreateOrderRequest(BaseModel):
     plan: str = "pro_monthly"
 
 class VerifyPaymentRequest(BaseModel):
-    razorpay_order_id: str
-    razorpay_payment_id: str
-    razorpay_signature: str
+    razorpay_order_id: str = ""
+    razorpay_payment_id: str = ""
+    razorpay_signature: str = ""
 
 class BookmarkRequest(BaseModel):
     item_type: str  # "function" or "tutorial"
@@ -43,8 +41,6 @@ class BookmarkRequest(BaseModel):
 
 # ============= HELPERS =============
 DEFAULT_SETTINGS = {
-    "razorpay_key_id": "",
-    "razorpay_key_secret": "",
     "google_review_url": "",
     "pro_price_inr": 299,
     "free_daily_chat_limit": 5,
@@ -58,13 +54,9 @@ async def get_settings(db: AsyncIOMotorDatabase) -> dict:
         s = DEFAULT_SETTINGS.copy()
     for k, v in DEFAULT_SETTINGS.items():
         s.setdefault(k, v)
-    # Env vars always win over empty DB values
-    env_key_id = os.environ.get("RAZORPAY_KEY_ID", "")
-    env_key_secret = os.environ.get("RAZORPAY_KEY_SECRET", "")
-    if env_key_id:
-        s["razorpay_key_id"] = env_key_id
-    if env_key_secret:
-        s["razorpay_key_secret"] = env_key_secret
+    # Payment credentials are environment-only. Do not persist them in MongoDB.
+    s["razorpay_key_id"] = os.environ.get("RAZORPAY_KEY_ID", "")
+    s["razorpay_key_secret"] = os.environ.get("RAZORPAY_KEY_SECRET", "")
     return s
 
 
@@ -125,14 +117,21 @@ def build_admin_router(db: AsyncIOMotorDatabase) -> APIRouter:
     @router.get("/admin/settings")
     async def admin_settings(user_id: str = Depends(get_current_user_id)):
         await require_admin(db, user_id)
-        return await get_settings(db)
+        settings = await get_settings(db)
+        # Never return payment credentials, including to an administrator.
+        settings.pop("razorpay_key_secret", None)
+        settings["razorpay_configured"] = bool(settings.get("razorpay_key_id"))
+        return settings
 
     @router.put("/admin/settings")
     async def update_admin_settings(payload: SettingsUpdate, user_id: str = Depends(get_current_user_id)):
         await require_admin(db, user_id)
         updates = {k: v for k, v in payload.dict().items() if v is not None}
         await db.app_settings.update_one({"_id": "singleton"}, {"$set": updates}, upsert=True)
-        return await get_settings(db)
+        settings = await get_settings(db)
+        settings.pop("razorpay_key_secret", None)
+        settings["razorpay_configured"] = bool(settings.get("razorpay_key_id"))
+        return settings
 
     # ------- PUBLIC: Config -------
     @router.get("/config")
@@ -217,12 +216,22 @@ def build_admin_router(db: AsyncIOMotorDatabase) -> APIRouter:
             raise HTTPException(status_code=503, detail="Payments not configured. Admin must add Razorpay keys.")
         amount_inr = s.get("pro_price_inr", 299)
         amount_paise = int(amount_inr) * 100
+        if amount_paise < 100:
+            raise HTTPException(status_code=400, detail="Payment amount must be at least 100 paise")
+        receipt = f"xls_{uuid.uuid4().hex[:24]}"
         try:
             import razorpay
             client = razorpay.Client(auth=(key_id, key_secret))
-            order = client.order.create({"amount": amount_paise, "currency": "INR", "payment_capture": 1})
+            order = client.order.create({
+                "amount": amount_paise,
+                "currency": "INR",
+                "receipt": receipt,
+                "payment_capture": 1,
+            })
         except Exception as e:
             logger.exception("Razorpay order create failed")
+            if getattr(e, "status_code", None) == 401:
+                raise HTTPException(status_code=401, detail="Razorpay authentication failed")
             raise HTTPException(status_code=500, detail=f"Order creation failed: {str(e)}")
         await db.payments.insert_one({
             "id": str(uuid.uuid4()),
@@ -230,6 +239,7 @@ def build_admin_router(db: AsyncIOMotorDatabase) -> APIRouter:
             "order_id": order["id"],
             "amount": amount_paise,
             "currency": "INR",
+            "receipt": receipt,
             "plan": req.plan,
             "status": "created",
             "created_at": datetime.now(timezone.utc).isoformat(),
@@ -238,6 +248,8 @@ def build_admin_router(db: AsyncIOMotorDatabase) -> APIRouter:
 
     @router.post("/payments/verify")
     async def verify_payment(req: VerifyPaymentRequest, user_id: str = Depends(get_current_user_id)):
+        if not all((req.razorpay_order_id, req.razorpay_payment_id, req.razorpay_signature)):
+            raise HTTPException(status_code=400, detail="Payment ID, order ID, and signature are required")
         s = await get_settings(db)
         key_secret = s.get("razorpay_key_secret")
         if not key_secret:
@@ -250,6 +262,11 @@ def build_admin_router(db: AsyncIOMotorDatabase) -> APIRouter:
                 {"$set": {"status": "signature_failed"}}
             )
             raise HTTPException(status_code=400, detail="Invalid signature")
+        payment = await db.payments.find_one({"order_id": req.razorpay_order_id, "user_id": user_id})
+        if not payment:
+            raise HTTPException(status_code=400, detail="Unknown payment order")
+        if payment.get("status") == "paid":
+            return {"ok": True, "is_pro": True}
         await db.payments.update_one(
             {"order_id": req.razorpay_order_id, "user_id": user_id},
             {"$set": {"status": "paid", "payment_id": req.razorpay_payment_id, "paid_at": datetime.now(timezone.utc).isoformat()}}
