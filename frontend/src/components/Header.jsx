@@ -34,9 +34,7 @@ export const Header = () => {
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
         <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 shrink-0 group" data-testid="brand-link">
           <svg width="36" height="28" viewBox="0 0 36 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Green X -->
             <polygon points="0,0 5,0 9,8 13,0 18,0 13,14 18,28 13,28 9,20 5,28 0,28 5,14" fill="#1DAF47"/>
-            <!-- Navy B (right, overlapping) -->
             <path d="M12,0 L12,28 L17,28 Q30,28 30,21 Q30,14 17,14 Q26,14 26,7 Q26,0 17,0 Z" fill="#0D1B3C"/>
           </svg>
           <span className="font-black tracking-tight text-lg whitespace-nowrap">
