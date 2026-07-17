@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, Lock, CheckCircle, ArrowRight, Lightning, Trophy, Star } from "phosphor-react";
+import { BookOpen, Lock, CheckCircle, ArrowRight, Lightning, Trophy, Star } from "@phosphor-icons/react";
 import api from "@/lib/api";
 
 const LEVEL_COLORS = {

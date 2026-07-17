@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle, Lock, BookOpen, Lightning, Clock, CaretDown, ArrowRight } from "phosphor-react";
+import { ArrowLeft, CheckCircle, Lock, BookOpen, Lightning, Clock, CaretDown, ArrowRight } from "@phosphor-icons/react";
 import api from "@/lib/api";
 
 function LessonRow({ lesson, pathSlug }) {

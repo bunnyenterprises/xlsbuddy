@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, CheckCircle, LightbulbFilament,
   Robot, X, Lightning, Clock, BookOpen, Star,
-} from "phosphor-react";
+} from "@phosphor-icons/react";
 import api from "@/lib/api";
 import AICoach from "@/components/AICoach";
 

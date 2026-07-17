@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { PaperPlaneTilt, Robot, X, CaretDown, Spinner } from "phosphor-react";
+import { PaperPlaneTilt, Robot, X, CaretDown, SpinnerGap } from "@phosphor-icons/react";
 import api from "@/lib/api";
 
 const QUICK_PROMPTS = [
@@ -133,7 +133,7 @@ export default function AICoach({ lessonId, lessonTitle, defaultOpen = false, cl
                   <Robot size={14} weight="fill" className="text-white" />
                 </div>
                 <div className="bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-tl-sm px-4 py-3">
-                  <Spinner size={16} className="text-[#002FA7] animate-spin" />
+                  <SpinnerGap size={16} className="text-[#002FA7] animate-spin" />
                 </div>
               </div>
             )}
