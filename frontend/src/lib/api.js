@@ -4,7 +4,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8001"
 
 export const API = `${BACKEND_URL}/api`;
 
-export const api = axios.create({
+const api = axios.create({
   baseURL: API,
   withCredentials: true,
   headers: { "X-Requested-With": "XLSBuddy" },
@@ -32,3 +32,6 @@ api.interceptors.response.use(
     return Promise.reject(err);
   }
 );
+
+export { api };
+export default api;
