@@ -81,7 +81,7 @@ AUTH_COOKIE_SECURE = os.environ.get('AUTH_COOKIE_SECURE', 'true').lower() == 'tr
 AUTH_COOKIE_SAMESITE = os.environ.get('AUTH_COOKIE_SAMESITE', 'none')
 AUTH_COOKIE_DOMAIN = os.environ.get('AUTH_COOKIE_DOMAIN') or None
 AUTH_COOKIE_PATH = os.environ.get('AUTH_COOKIE_PATH', '/')
-AUTH_COOKIE_MAX_AGE = int(os.environ.get('AUTH_COOKIE_MAX_AGE', str(60 * 30)))
+AUTH_COOKIE_MAX_AGE = int(os.environ.get('AUTH_COOKIE_MAX_AGE', str(60 * 120)))
 
 LANGUAGE_NAMES = {
     "hi": "Hindi (हिंदी)",
