@@ -263,6 +263,7 @@ function MultipleChoice({ exercise, onCorrect }) {
   const [submitted, setSubmitted] = useState(false);
   const lessonId = useParams().lessonId;
   const [explanation, setExplanation] = useState("");
+  const [correctAnswer, setCorrectAnswer] = useState(null);
 
   const submit = async (opt) => {
     if (submitted) return;
@@ -271,12 +272,17 @@ function MultipleChoice({ exercise, onCorrect }) {
     try {
       const res = await api.post(`/learn/lessons/${lessonId}/check`, { answer: opt });
       setExplanation(res.data.explanation);
-      if (res.data.correct) onCorrect();
+      if (res.data.correct) {
+        setCorrectAnswer(opt);
+        onCorrect();
+      } else {
+        setCorrectAnswer(res.data.correct_answer);
+      }
     } catch {}
   };
 
-  const isCorrect = (opt) => submitted && opt === exercise.answer;
-  const isWrong = (opt) => submitted && opt === selected && opt !== exercise.answer;
+  const isCorrect = (opt) => submitted && correctAnswer && opt.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+  const isWrong = (opt) => submitted && opt === selected && !isCorrect(opt);
 
   return (
     <div className="space-y-4">
@@ -292,8 +298,6 @@ function MultipleChoice({ exercise, onCorrect }) {
                 ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300"
                 : isWrong(opt)
                 ? "border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300"
-                : submitted && opt === exercise.answer
-                ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300"
                 : submitted
                 ? "border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
                 : "border-gray-200 dark:border-gray-700 hover:border-[#002FA7] hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-900 dark:text-white"
